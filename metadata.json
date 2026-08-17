@@ -1,0 +1,6 @@
+{
+  "name": "ProSIM - Multidisciplinary Engineering & Design",
+  "description": "Delivering innovative engineering solutions across energy, nuclear, oil & gas, process, and infrastructure sectors through delivery excellence.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
