@@ -1,216 +1,306 @@
-import React, { useState, useEffect } from 'react';
-import { Menu, X, ArrowRight, Activity, PhoneCall, Sparkles, Search } from 'lucide-react';
-import { motion } from 'motion/react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { AnimatePresence, motion, useScroll, useSpring } from 'motion/react';
+import { ArrowRight, Menu, PhoneCall, Sparkles, X } from 'lucide-react';
+import { MagneticButton } from './ui/MagneticButton';
+import { Logo } from './ui/Logo';
 
 interface NavbarProps {
   onOpenConsultation: () => void;
 }
 
+const NAV_LINKS = [
+  { name: 'Home', id: 'home' },
+  { name: 'About Us', id: 'about' },
+  { name: 'Industries', id: 'industries' },
+  { name: 'Services', id: 'services' },
+  { name: 'Projects', id: 'projects' },
+  { name: 'Clients', id: 'clients' },
+  { name: 'Careers', id: 'careers' },
+  { name: 'Contact', id: 'contact' },
+] as const;
+
+/** Matches --nav-height in index.css; used to offset programmatic scrolling. */
+const NAV_OFFSET = 88;
+
 export const Navbar: React.FC<NavbarProps> = ({ onOpenConsultation }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState('home');
+  const [activeSection, setActiveSection] = useState<string>('home');
 
+  // Thin progress bar showing how far through the page the reader is.
+  const { scrollYProgress } = useScroll();
+  const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 30, mass: 0.3 });
+
+  /**
+   * Scroll handling is throttled to one read per animation frame. The previous
+   * version ran a full layout query (offsetTop/offsetHeight on nine elements)
+   * on every scroll event, which forced synchronous reflow dozens of times a
+   * second and made the page stutter while scrolling.
+   */
   useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 40) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
+    let frameId = 0;
 
-      const sections = ['home', 'stats', 'about', 'industries', 'services', 'clients', 'projects', 'careers', 'contact'];
-      const scrollPosition = window.scrollY + 250;
+    const measure = () => {
+      frameId = 0;
+      const y = window.scrollY;
+      setIsScrolled(y > 40);
 
-      for (const section of sections) {
-        const el = document.getElementById(section);
-        if (el) {
-          const top = el.offsetTop;
-          const height = el.offsetHeight;
-          if (scrollPosition >= top && scrollPosition < top + height) {
-            setActiveSection(section);
-            break;
-          }
+      const probe = y + NAV_OFFSET + 60;
+      let current: string = NAV_LINKS[0].id;
+
+      for (const link of NAV_LINKS) {
+        const el = document.getElementById(link.id);
+        if (!el) continue;
+
+        const top = el.offsetTop;
+        if (probe >= top && probe < top + el.offsetHeight) {
+          current = link.id;
+          break;
         }
       }
+
+      // Anything past the fold's end belongs to the last section in view.
+      if (window.innerHeight + y >= document.body.scrollHeight - 80) {
+        current = NAV_LINKS[NAV_LINKS.length - 1].id;
+      }
+
+      setActiveSection(current);
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    const onScroll = () => {
+      if (frameId) return;
+      frameId = requestAnimationFrame(measure);
+    };
+
+    measure();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+      if (frameId) cancelAnimationFrame(frameId);
+    };
   }, []);
 
-  const navLinks = [
-    { name: 'Home', href: '#home', id: 'home' },
-    { name: 'About Us', href: '#about', id: 'about' },
-    { name: 'Industries', href: '#industries', id: 'industries' },
-    { name: 'Services', href: '#services', id: 'services' },
-    { name: 'Projects', href: '#projects', id: 'projects' },
-    { name: 'Clients', href: '#clients', id: 'clients' },
-    { name: 'Careers', href: '#careers', id: 'careers' },
-    { name: 'Contact', href: '#contact', id: 'contact' },
-  ];
+  /* Close the mobile drawer on Escape or once the layout goes wide. */
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
 
-  const handleLinkClick = (href: string) => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMobileMenuOpen(false);
+    };
+    const onResize = () => {
+      if (window.innerWidth >= 1024) setMobileMenuOpen(false);
+    };
+
+    document.addEventListener('keydown', onKeyDown);
+    window.addEventListener('resize', onResize);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('resize', onResize);
+    };
+  }, [mobileMenuOpen]);
+
+  /**
+   * Scrolls with the fixed header's height subtracted. `scrollIntoView` alone
+   * parked each section's heading underneath the navbar.
+   */
+  const goToSection = useCallback((id: string) => {
     setMobileMenuOpen(false);
-    const target = document.querySelector(href);
-    if (target) {
-      target.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    const top = el.getBoundingClientRect().top + window.scrollY - NAV_OFFSET;
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    window.scrollTo({ top: Math.max(0, top), behavior: prefersReduced ? 'auto' : 'smooth' });
+  }, []);
 
   return (
     <header
       id="main-navbar"
-      className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 w-full"
+      className="fixed inset-x-0 top-0 z-50 w-full transition-all duration-300"
     >
-      {/* Top Bar with Single Break Line and Enhanced Transparency */}
-      <div className={`w-full transition-all duration-300 ${
-        isScrolled 
-          ? 'bg-white/95 backdrop-blur-xl border-b border-slate-200/80 shadow-md py-2.5' 
-          : 'bg-slate-950/20 backdrop-blur-sm border-b border-white/10 py-3 sm:py-3.5'
-      }`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Liquid Glass Pill Navigation Capsule */}
+      <a
+        href="#about"
+        onClick={(e) => {
+          e.preventDefault();
+          goToSection('about');
+        }}
+        className="sr-only rounded-lg bg-white px-4 py-2 text-sm font-bold text-cyan-700 focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50"
+      >
+        Skip to main content
+      </a>
+
+      <motion.div
+        initial={{ y: -80, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+        className={`w-full transition-all duration-300 ${
+          isScrolled
+            ? 'border-b border-slate-200/80 bg-white/95 py-2.5 shadow-md backdrop-blur-xl'
+            : 'border-b border-white/10 bg-slate-950/20 py-3 backdrop-blur-sm sm:py-3.5'
+        }`}
+      >
+        <div className="page-shell ">
           <div className="flex items-center justify-between">
-            {/* Brand Logo */}
+            {/* Brand */}
             <a
               href="#home"
               onClick={(e) => {
                 e.preventDefault();
-                handleLinkClick('#home');
+                goToSection('home');
               }}
-              className="flex items-center gap-2.5 group cursor-pointer shrink-0"
+              className="group flex shrink-0 cursor-pointer items-center"
+              aria-label="ProSIM — back to top"
             >
-              {/* Logo Emblem */}
-              <div className="relative w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 via-teal-400 to-sky-400 p-[1.5px] shadow-lg shadow-cyan-500/25 group-hover:scale-105 transition-transform">
-                <div className={`w-full h-full rounded-xl flex items-center justify-center font-black text-sm tracking-tighter ${
-                  isScrolled ? 'bg-white text-cyan-700' : 'bg-slate-900 text-cyan-400'
-                }`}>
-                  <span>P</span>
-                  <span className="text-teal-400 -ml-0.5">S</span>
-                </div>
-                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
-              </div>
-
-              <div className="flex flex-col">
-                <div className="flex items-center gap-1.5">
-                  <span className={`text-xl font-black tracking-tight transition-colors ${
-                    isScrolled ? 'text-slate-900 group-hover:text-cyan-600' : 'text-white group-hover:text-cyan-300'
-                  }`}>
-                    ProSIM
-                  </span>
-                  <span className={`text-[9px] uppercase font-mono font-bold tracking-wider px-1.5 py-0.2 rounded border ${
-                    isScrolled 
-                      ? 'bg-cyan-50 text-cyan-800 border-cyan-200' 
-                      : 'bg-cyan-500/20 text-cyan-300 border-cyan-400/30'
-                  }`}>
-                    R&D
-                  </span>
-                </div>
-                <span className={`text-[9px] tracking-wider font-medium hidden md:inline ${
-                  isScrolled ? 'text-slate-500' : 'text-slate-300'
-                }`}>
-                  Multidisciplinary Engineering
-                </span>
-              </div>
+              {/* On the transparent (over-video) navbar the mark needs its own
+                  light ground; once the bar turns white it sits bare. */}
+              <Logo onDark={!isScrolled} priority />
             </a>
 
-            {/* Desktop Navigation Links (Pill Style) */}
-            <nav className={`hidden lg:flex items-center gap-1 px-2.5 py-1.5 rounded-full border transition-all ${
-              isScrolled 
-                ? 'bg-slate-100/90 border-slate-200' 
-                : 'bg-slate-900/60 border-white/15 backdrop-blur-xl'
-            }`}>
-              {navLinks.map((link) => {
+            {/* Desktop nav */}
+            <nav
+              aria-label="Primary"
+              className={`hidden items-center gap-1 rounded-full border px-2.5 py-1.5 transition-all lg:flex ${
+                isScrolled
+                  ? 'border-slate-200 bg-slate-100/90'
+                  : 'border-transparent bg-transparent'
+              }`}
+            >
+              {NAV_LINKS.map((link) => {
                 const isActive = activeSection === link.id;
                 return (
                   <a
-                    key={link.name}
-                    href={link.href}
+                    key={link.id}
+                    href={`#${link.id}`}
                     onClick={(e) => {
                       e.preventDefault();
-                      handleLinkClick(link.href);
+                      goToSection(link.id);
                     }}
-                    className={`px-3.5 py-1 text-xs font-semibold rounded-full transition-all duration-200 whitespace-nowrap ${
+                    aria-current={isActive ? 'page' : undefined}
+                    className={`relative whitespace-nowrap rounded-full px-3.5 py-1 text-xs font-semibold transition-colors duration-200 ${
                       isActive
                         ? isScrolled
-                          ? 'bg-white text-cyan-700 shadow-sm border border-slate-200 font-bold'
-                          : 'bg-cyan-500/25 text-cyan-300 border border-cyan-400/40 font-bold'
+                          ? 'text-cyan-700'
+                          : 'text-cyan-300'
                         : isScrolled
-                          ? 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
-                          : 'text-slate-200 hover:text-white hover:bg-white/10'
+                          ? 'text-slate-600 hover:text-slate-900'
+                          : 'text-slate-200 hover:text-white'
                     }`}
                   >
-                    {link.name}
+                    {/* The pill physically slides between links rather than
+                        popping in and out on each one. */}
+                    {isActive && (
+                      <motion.span
+                        layoutId="nav-active-pill"
+                        transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+                        className={`absolute inset-0 rounded-full border ${
+                          isScrolled
+                            ? 'border-slate-200 bg-white shadow-sm'
+                            : 'border-cyan-400/40 bg-cyan-500/25'
+                        }`}
+                      />
+                    )}
+                    <span className="relative z-10">{link.name}</span>
                   </a>
                 );
               })}
             </nav>
 
-            {/* Actions & CTA */}
+            {/* Actions */}
             <div className="flex items-center gap-2 sm:gap-3">
-              <button
+              <MagneticButton
                 id="nav-consultation-btn"
+                type="button"
                 onClick={onOpenConsultation}
-                className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-xs text-white bg-gradient-to-r from-cyan-600 via-teal-600 to-sky-600 shadow-md shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
+                className="hidden cursor-pointer items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-600 via-teal-600 to-sky-600 px-4 py-2 text-xs font-bold text-white shadow-md shadow-cyan-500/25 transition-shadow hover:shadow-cyan-500/40 sm:inline-flex"
               >
-                <PhoneCall className="w-3.5 h-3.5" />
+                <PhoneCall className="h-3.5 w-3.5" />
                 <span>Get In Touch</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </MagneticButton>
 
-              {/* Mobile Menu Toggle */}
               <button
                 id="mobile-menu-toggle"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className={`p-2 rounded-xl border transition-colors lg:hidden ${
-                  isScrolled 
-                    ? 'bg-slate-100 border-slate-200 text-slate-800' 
-                    : 'bg-slate-900/60 border-white/20 text-white'
+                type="button"
+                onClick={() => setMobileMenuOpen((open) => !open)}
+                className={`rounded-xl border p-2 transition-colors lg:hidden ${
+                  isScrolled
+                    ? 'border-slate-200 bg-slate-100 text-slate-800'
+                    : 'border-white/20 bg-slate-900/60 text-white'
                 }`}
-                aria-label="Toggle menu"
+                aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+                aria-expanded={mobileMenuOpen}
+                aria-controls="mobile-nav-drawer"
               >
-                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </button>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Mobile Drawer Navigation Menu */}
-      {mobileMenuOpen && (
-        <div className="lg:hidden fixed inset-x-0 top-[60px] bg-slate-900/95 backdrop-blur-2xl border-b border-slate-800 shadow-2xl p-5 space-y-3 z-50">
-          <div className="grid grid-cols-2 gap-2">
-            {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleLinkClick(link.href);
+        {/* Reading progress */}
+        <motion.div
+          aria-hidden
+          style={{ scaleX: progress }}
+          className="absolute inset-x-0 bottom-0 h-0.5 origin-left bg-gradient-to-r from-cyan-500 via-teal-400 to-sky-500"
+        />
+      </motion.div>
+
+      {/* Mobile drawer */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            id="mobile-nav-drawer"
+            initial={{ opacity: 0, y: -16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -16 }}
+            transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
+            className="absolute inset-x-0 top-full space-y-3 border-b border-slate-800 bg-slate-900/95 p-5 shadow-2xl backdrop-blur-2xl lg:hidden"
+          >
+            <nav aria-label="Mobile" className="grid grid-cols-2 gap-2">
+              {NAV_LINKS.map((link, idx) => (
+                <motion.a
+                  key={link.id}
+                  href={`#${link.id}`}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.035, duration: 0.3 }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    goToSection(link.id);
+                  }}
+                  aria-current={activeSection === link.id ? 'page' : undefined}
+                  className={`flex items-center justify-between rounded-xl border px-3 py-2.5 text-xs font-semibold transition-colors ${
+                    activeSection === link.id
+                      ? 'border-cyan-400/40 bg-cyan-500/15 text-cyan-300'
+                      : 'border-slate-700/80 bg-slate-800/80 text-slate-200 hover:bg-slate-800 hover:text-cyan-300'
+                  }`}
+                >
+                  <span>{link.name}</span>
+                  <ArrowRight className="h-3 w-3 opacity-40" />
+                </motion.a>
+              ))}
+            </nav>
+
+            <div className="border-t border-slate-800 pt-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onOpenConsultation();
                 }}
-                className="px-3 py-2.5 rounded-xl bg-slate-800/80 border border-slate-700/80 text-xs font-semibold text-slate-200 hover:text-cyan-300 hover:bg-slate-800 transition-colors flex items-center justify-between"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 py-3 text-xs font-bold text-white shadow-lg"
               >
-                <span>{link.name}</span>
-                <ArrowRight className="w-3 h-3 opacity-40" />
-              </a>
-            ))}
-          </div>
-
-          <div className="pt-3 border-t border-slate-800 flex items-center gap-2">
-            <button
-              onClick={() => {
-                setMobileMenuOpen(false);
-                onOpenConsultation();
-              }}
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-lg"
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Request Consultation</span>
-            </button>
-          </div>
-        </div>
-      )}
+                <Sparkles className="h-3.5 w-3.5" />
+                <span>Request Consultation</span>
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 };

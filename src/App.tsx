@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { ClientsMarquee } from './components/ClientsMarquee';
@@ -18,73 +18,58 @@ import { Footer } from './components/Footer';
 import { IndustryModal } from './components/IndustryModal';
 import { ConsultationModal } from './components/ConsultationModal';
 import { JobApplyModal } from './components/JobApplyModal';
-import { IndustryItem, JobOpening } from './types';
+import type { IndustryItem, JobOpening } from './types';
 
 export default function App() {
   const [selectedIndustry, setSelectedIndustry] = useState<IndustryItem | null>(null);
   const [selectedJob, setSelectedJob] = useState<JobOpening | null>(null);
-  const [consultationModalOpen, setConsultationModalOpen] = useState(false);
+  const [consultationOpen, setConsultationOpen] = useState(false);
+
+  // Stable identities keep the memoised sections from re-rendering on every
+  // modal state change.
+  const openConsultation = useCallback(() => setConsultationOpen(true), []);
+  const closeConsultation = useCallback(() => setConsultationOpen(false), []);
+  const closeIndustry = useCallback(() => setSelectedIndustry(null), []);
+  const closeJob = useCallback(() => setSelectedJob(null), []);
+
+  const openConsultationFromIndustry = useCallback(() => {
+    setSelectedIndustry(null);
+    setConsultationOpen(true);
+  }, []);
 
   return (
-    <div id="prosim-app-root" className="min-h-screen bg-slate-50 text-slate-900 flex flex-col selection:bg-cyan-500 selection:text-white">
-      {/* Liquid Glass Pill Navigation with Hairline Top Break Line */}
-      <Navbar onOpenConsultation={() => setConsultationModalOpen(true)} />
+    <div
+      id="prosim-app-root"
+      className="flex min-h-screen flex-col bg-slate-50 text-slate-900"
+    >
+      <Navbar onOpenConsultation={openConsultation} />
 
-      {/* Main Content Sections */}
-      <main className="flex-1 w-full overflow-x-hidden">
-        {/* Full-Height Autoplay Industrial Video Hero Section with Direct Headline Overlay */}
-        <Hero onOpenConsultation={() => setConsultationModalOpen(true)} />
-
-        {/* 800+ Trusted Clients Infinite Marquee (Directly under Hero like Reference) */}
+      <main className="w-full flex-1 overflow-x-hidden">
+        <Hero onOpenConsultation={openConsultation} />
         <ClientsMarquee />
-
-        {/* 3D Tilt Stats Section with Animated Count-Up Numbers */}
         <StatsSection />
-
-        {/* About ProSIM Section with Multi-Discipline Engineering Statement */}
-        <AboutSection onOpenConsultation={() => setConsultationModalOpen(true)} />
-
-        {/* Industries We Serve with 3D Tilt Cards */}
-        <IndustriesSection 
-          onSelectIndustry={(industry) => setSelectedIndustry(industry)}
-          onOpenConsultation={() => setConsultationModalOpen(true)}
+        <AboutSection onOpenConsultation={openConsultation} />
+        <IndustriesSection
+          onSelectIndustry={setSelectedIndustry}
+          onOpenConsultation={openConsultation}
         />
-
-        {/* Services & Core Multi-Discipline Engineering Disciplines */}
-        <ServicesSection onOpenConsultation={() => setConsultationModalOpen(true)} />
-
-        {/* Case Studies & Proven Engineering Projects */}
+        <ServicesSection onOpenConsultation={openConsultation} />
         <ProjectsSection />
-
-        {/* Careers & Engineering Opportunities */}
-        <CareersSection onApplyJob={(job) => setSelectedJob(job)} />
-
-        {/* Contact & Technical Consultation RFP Form */}
+        <CareersSection onApplyJob={setSelectedJob} />
         <ContactSection />
       </main>
 
-      {/* Footer */}
-      <Footer onOpenConsultation={() => setConsultationModalOpen(true)} />
+      <Footer onOpenConsultation={openConsultation} />
 
-      {/* Modals */}
-      <IndustryModal 
-        industry={selectedIndustry} 
-        onClose={() => setSelectedIndustry(null)}
-        onOpenConsultation={() => {
-          setSelectedIndustry(null);
-          setConsultationModalOpen(true);
-        }}
+      <IndustryModal
+        industry={selectedIndustry}
+        onClose={closeIndustry}
+        onOpenConsultation={openConsultationFromIndustry}
       />
 
-      <ConsultationModal 
-        isOpen={consultationModalOpen} 
-        onClose={() => setConsultationModalOpen(false)} 
-      />
+      <ConsultationModal isOpen={consultationOpen} onClose={closeConsultation} />
 
-      <JobApplyModal 
-        job={selectedJob} 
-        onClose={() => setSelectedJob(null)} 
-      />
+      <JobApplyModal job={selectedJob} onClose={closeJob} />
     </div>
   );
 }

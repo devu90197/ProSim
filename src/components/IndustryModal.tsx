@@ -1,20 +1,9 @@
-import React from 'react';
-import { IndustryItem } from '../types';
-import { 
-  X, 
-  Atom, 
-  Flame, 
-  Droplets, 
-  Layers, 
-  Cpu, 
-  Zap, 
-  CheckCircle2, 
-  ShieldCheck, 
-  FileText, 
-  ArrowRight,
-  Sparkles
-} from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import React, { useEffect, useState } from 'react';
+import type { IndustryItem } from '../types';
+import { ArrowRight, CheckCircle2, FileText } from 'lucide-react';
+import { Modal } from './ui/Modal';
+import { MagneticButton } from './ui/MagneticButton';
+import { Stagger, StaggerItem } from './ui/Reveal';
 
 interface IndustryModalProps {
   industry: IndustryItem | null;
@@ -22,109 +11,93 @@ interface IndustryModalProps {
   onOpenConsultation: () => void;
 }
 
-export const IndustryModal: React.FC<IndustryModalProps> = ({ 
-  industry, 
-  onClose, 
-  onOpenConsultation 
+export const IndustryModal: React.FC<IndustryModalProps> = ({
+  industry,
+  onClose,
+  onOpenConsultation,
 }) => {
-  if (!industry) return null;
+  /**
+   * Hold on to the last selected industry so the panel still has content to
+   * render while it animates out — the prop drops to null the moment it closes.
+   */
+  const [shown, setShown] = useState<IndustryItem | null>(industry);
+
+  useEffect(() => {
+    if (industry) setShown(industry);
+  }, [industry]);
+
+  const data = industry ?? shown;
 
   return (
-    <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
-        {/* Backdrop */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onClick={onClose}
-          className="fixed inset-0 bg-slate-900/40 backdrop-blur-md transition-opacity"
-        />
-
-        {/* Modal Window */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-          className="relative w-full max-w-3xl rounded-3xl backdrop-blur-2xl bg-white/95 border border-slate-200 p-6 sm:p-8 shadow-2xl z-10 my-8 max-h-[90vh] overflow-y-auto"
-        >
-          {/* Top Sheen */}
-          <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent" />
-
-          {/* Close Button */}
-          <button
-            onClick={onClose}
-            className="absolute top-5 right-5 p-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-500 hover:text-slate-900 hover:bg-slate-200 transition-colors cursor-pointer"
-          >
-            <X className="w-4 h-4" />
-          </button>
-
-          {/* Modal Header */}
+    <Modal
+      isOpen={Boolean(industry)}
+      onClose={onClose}
+      title={data ? `${data.title} engineering capabilities` : 'Industry details'}
+      className="max-w-3xl"
+    >
+      {data && (
+        <>
           <div className="space-y-3 pr-10">
-            <div className="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-cyan-50 text-cyan-800 text-xs font-mono font-bold border border-cyan-200">
-              <span>{industry.category}</span>
+            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-200 bg-cyan-50 px-3 py-0.5 font-mono text-xs font-bold text-cyan-800">
+              <span>{data.category}</span>
             </div>
-            <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-              {industry.title}
+            <h3 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
+              {data.title}
             </h3>
-            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
-              {industry.fullDesc}
-            </p>
+            <p className="text-xs leading-relaxed text-slate-600 sm:text-sm">{data.fullDesc}</p>
           </div>
 
-          {/* Capabilities Grid */}
-          <div className="mt-6 pt-6 border-t border-slate-100 space-y-3">
-            <h4 className="text-xs font-bold uppercase font-mono tracking-wider text-cyan-800">
-              Technical Capabilities & FEA/CFD Analysis
+          <div className="mt-6 space-y-3 border-t border-slate-100 pt-6">
+            <h4 className="font-mono text-xs font-bold uppercase tracking-wider text-cyan-800">
+              Technical Capabilities &amp; FEA/CFD Analysis
             </h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              {industry.capabilities.map((cap, idx) => (
-                <div key={idx} className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-teal-600 shrink-0 mt-0.5" />
-                  <span className="text-xs text-slate-700 font-medium">{cap}</span>
-                </div>
+            <Stagger className="grid grid-cols-1 gap-2.5 sm:grid-cols-2" stagger={0.05}>
+              {data.capabilities.map((cap) => (
+                <StaggerItem key={cap}>
+                  <div className="flex h-full items-start gap-2.5 rounded-xl border border-slate-200 bg-slate-50 p-3 transition-colors hover:border-cyan-300 hover:bg-cyan-50/60">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-teal-600" />
+                    <span className="text-xs font-medium text-slate-700">{cap}</span>
+                  </div>
+                </StaggerItem>
               ))}
-            </div>
+            </Stagger>
           </div>
 
-          {/* Highlight Project */}
-          <div className="mt-6 p-4 rounded-2xl bg-cyan-50/80 border border-cyan-200 space-y-1.5">
-            <div className="flex items-center gap-2 text-xs font-bold text-cyan-900 font-mono uppercase">
-              <FileText className="w-4 h-4 text-cyan-600" />
+          <div className="mt-6 space-y-1.5 rounded-2xl border border-cyan-200 bg-cyan-50/80 p-4">
+            <div className="flex items-center gap-2 font-mono text-xs font-bold uppercase text-cyan-900">
+              <FileText className="h-4 w-4 text-cyan-600" />
               <span>Representative Engineering Project</span>
             </div>
-            <p className="text-xs text-slate-700 leading-relaxed font-normal">
-              {industry.sampleProject}
-            </p>
+            <p className="text-xs leading-relaxed text-slate-700">{data.sampleProject}</p>
           </div>
 
-          {/* Standards & Footer */}
-          <div className="mt-6 pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="mt-6 flex flex-col items-center justify-between gap-4 border-t border-slate-100 pt-6 sm:flex-row">
             <div className="flex flex-wrap items-center gap-1.5">
-              <span className="text-[11px] text-slate-500 font-mono mr-1">Standards:</span>
-              {industry.keyStandards.map((std, idx) => (
-                <span key={idx} className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200 font-medium">
+              <span className="mr-1 font-mono text-[11px] text-slate-500">Standards:</span>
+              {data.keyStandards.map((std) => (
+                <span
+                  key={std}
+                  className="rounded border border-slate-200 bg-slate-100 px-2 py-0.5 font-mono text-[10px] font-medium text-slate-700"
+                >
                   {std}
                 </span>
               ))}
             </div>
 
-            <div className="flex items-center gap-3 w-full sm:w-auto">
-              <button
-                onClick={() => {
-                  onClose();
-                  onOpenConsultation();
-                }}
-                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 via-teal-600 to-sky-600 text-white font-bold text-xs tracking-wide shadow-md shadow-cyan-500/20 hover:shadow-cyan-500/35 transition-all flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <span>Request {industry.title} Proposal</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
+            <MagneticButton
+              type="button"
+              onClick={() => {
+                onClose();
+                onOpenConsultation();
+              }}
+              className="flex w-full shrink-0 cursor-pointer items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyan-600 via-teal-600 to-sky-600 px-5 py-2.5 text-xs font-bold tracking-wide text-white shadow-md shadow-cyan-500/20 transition-shadow hover:shadow-cyan-500/35 sm:w-auto"
+            >
+              <span>Request {data.title} Proposal</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </MagneticButton>
           </div>
-        </motion.div>
-      </div>
-    </AnimatePresence>
+        </>
+      )}
+    </Modal>
   );
 };

@@ -1,4 +1,11 @@
-import { StatItem, IndustryItem, ServiceItem, ClientItem, ProjectCaseStudy, JobOpening } from '../types';
+import type {
+  ClientItem,
+  IndustryItem,
+  JobOpening,
+  ProjectCaseStudy,
+  ServiceItem,
+  StatItem,
+} from '../types';
 
 export const HERO_DATA = {
   headline: "Engineering through Delivery Excellence",
@@ -130,7 +137,7 @@ export const INDUSTRIES_DATA: IndustryItem[] = [
     sampleProject: "Subsea rigid jumper thermal expansion, vortex-induced vibration (VIV), and fatigue analysis in 1,200m deepwater.",
     metrics: "500+ Offshore & Pipeline Validations",
     iconName: "Droplets",
-    image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80"
+    image: "https://images.unsplash.com/photo-1542382257-80dedb725088?auto=format&fit=crop&w=800&q=80"
   },
   {
     id: "petrochemical-engineering",
@@ -444,4 +451,32 @@ export const CAREERS_DATA: JobOpening[] = [
       "Proven ability to manage EPC client design interfaces"
     ]
   }
+];
+
+/* ------------------------------------------------------------------ *
+ * Derived option lists
+ *
+ * The contact form, the consultation modal and the project filter all used
+ * to hard-code these strings. Deriving them from the data above means a new
+ * industry or service shows up everywhere at once, and the project filter can
+ * no longer drift out of sync with the case studies it filters.
+ * ------------------------------------------------------------------ */
+
+/** Industry sectors, as offered in the enquiry dropdowns. */
+export const SECTOR_OPTIONS: string[] = INDUSTRIES_DATA.map((industry) => industry.title);
+
+/** Engineering disciplines, as offered in the enquiry dropdowns. */
+export const SERVICE_OPTIONS: string[] = SERVICES_DATA.map((service) => service.title);
+
+export const TIMELINE_OPTIONS: string[] = [
+  'Immediate (< 1 Month)',
+  '1 – 3 Months',
+  '3 – 6 Months',
+  'Budgetary / Future FEED Phase',
+];
+
+/** Filter pills for the case-study grid, built from the projects themselves. */
+export const PROJECT_FILTERS: string[] = [
+  'all',
+  ...Array.from(new Set(PROJECTS_DATA.map((project) => project.industry))),
 ];

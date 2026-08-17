@@ -1,22 +1,38 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
-import path from 'path';
-import {defineConfig} from 'vite';
+import { fileURLToPath, URL } from 'node:url';
+import { defineConfig } from 'vite';
 
 export default defineConfig(() => {
+  const hmrDisabled = process.env.DISABLE_HMR === 'true';
+
   return {
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, '.'),
+        '@': fileURLToPath(new URL('./src', import.meta.url)),
       },
     },
     server: {
-      // HMR is disabled in AI Studio via DISABLE_HMR env var.
-      // Do not modifyâfile watching is disabled to prevent flickering during agent edits.
-      hmr: process.env.DISABLE_HMR !== 'true',
-      // Disable file watching when DISABLE_HMR is true to save CPU during agent edits.
-      watch: process.env.DISABLE_HMR === 'true' ? null : {},
+      // HMR is disabled in AI Studio via the DISABLE_HMR env var. File watching is
+      // turned off alongside it to prevent flickering during agent edits.
+      hmr: !hmrDisabled,
+      watch: hmrDisabled ? null : {},
+    },
+    build: {
+      target: 'es2022',
+      cssMinify: 'lightningcss' as const,
+      // Split the animation and icon layers out of the app bundle so the
+      // above-the-fold shell can be parsed without waiting on them.
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            react: ['react', 'react-dom'],
+            motion: ['motion'],
+            icons: ['lucide-react'],
+          },
+        },
+      },
     },
   };
 });

@@ -3,16 +3,37 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Google AI Studio App</title>
-    <meta name="description" content="An application built with Google AI Studio." />
-    <meta property="og:title" content="My Google AI Studio App" />
-    <meta property="og:description" content="An application built with Google AI Studio." />
+    <meta name="theme-color" content="#0891b2" />
+
+    <title>ProSIM — Multidisciplinary Engineering &amp; Design</title>
+    <meta
+      name="description"
+      content="ProSIM delivers multidisciplinary engineering and design across energy, nuclear, oil &amp; gas, process and infrastructure sectors — FEA, CFD, piping stress, and code-qualified plant engineering."
+    />
+
     <meta property="og:type" content="website" />
+    <meta property="og:title" content="ProSIM — Engineering through Delivery Excellence" />
+    <meta
+      property="og:description"
+      content="Advanced FEA, CFD, piping stress and fitness-for-service engineering for global energy and industrial leaders. 3,600+ projects, 800+ clients, 25+ years."
+    />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="ProSIM — Engineering through Delivery Excellence" />
+
+    <!-- Square, padded crop of the ProSIM mark so it stays legible at 16px. -->
+    <link rel="icon" href="/favicon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/favicon.png" />
+
+    <!-- Start fetching the header logo alongside the JS bundle so the first
+         paint is not waiting on it. -->
+    <link rel="preload" as="image" href="/logo.webp" type="image/webp" fetchpriority="high" />
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      ProSIM requires JavaScript to display its interactive engineering portfolio. Please enable
+      JavaScript, or reach us directly at info@prosim.co.in.
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-

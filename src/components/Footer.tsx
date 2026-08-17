@@ -1,172 +1,169 @@
-import React from 'react';
-import { 
-  ShieldCheck, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  ArrowUp, 
-  Globe2, 
-  ExternalLink,
-  ChevronRight,
-  Sparkles
-} from 'lucide-react';
+import React, { useCallback } from 'react';
+import { motion, useReducedMotion } from 'motion/react';
+import { ArrowUp, ChevronRight, Globe2, ShieldCheck } from 'lucide-react';
+import { MagneticButton } from './ui/MagneticButton';
+import { Logo } from './ui/Logo';
+import { Reveal } from './ui/Reveal';
 
 interface FooterProps {
   onOpenConsultation: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onOpenConsultation }) => {
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+const INDUSTRY_LINKS = [
+  'Nuclear Power Island',
+  'Thermal & Supercritical Energy',
+  'Oil & Gas Production',
+  'Petrochemical Plants',
+  'Industrial & Heavy Engineering',
+  'Power & Grid Utilities',
+] as const;
 
-  const scrollToSection = (id: string) => {
-    const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
+const DISCIPLINE_LINKS = [
+  'Finite Element Analysis (FEA)',
+  'Computational Fluid Dynamics (CFD)',
+  'Piping Stress & Surge Simulation',
+  'Plant Engineering & 3D Modeling',
+  'Fitness-For-Service (API 579)',
+  'Digital Twin & RLA Studies',
+] as const;
+
+export const Footer: React.FC<FooterProps> = ({ onOpenConsultation }) => {
+  const reduceMotion = useReducedMotion();
+
+  const scrollToSection = useCallback(
+    (id: string) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const top = el.getBoundingClientRect().top + window.scrollY - 88;
+      window.scrollTo({ top: Math.max(0, top), behavior: reduceMotion ? 'auto' : 'smooth' });
+    },
+    [reduceMotion],
+  );
+
+  const scrollToTop = useCallback(() => {
+    window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+  }, [reduceMotion]);
+
+  const renderLinkList = (items: readonly string[], target: string) => (
+    <ul className="space-y-2 text-xs">
+      {items.map((name) => (
+        <li key={name}>
+          <motion.button
+            type="button"
+            onClick={() => scrollToSection(target)}
+            whileHover={reduceMotion ? undefined : { x: 4 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 24 }}
+            className="flex cursor-pointer items-center gap-1 text-left text-slate-600 transition-colors hover:text-cyan-700"
+          >
+            <ChevronRight className="h-3 w-3 shrink-0 text-slate-400" aria-hidden />
+            <span>{name}</span>
+          </motion.button>
+        </li>
+      ))}
+    </ul>
+  );
 
   return (
-    <footer className="relative bg-slate-100/90 border-t border-slate-200 text-slate-700 pt-16 pb-12 overflow-hidden">
-      {/* Background glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-24 bg-gradient-to-b from-cyan-400/10 to-transparent pointer-events-none" />
+    <footer className="relative overflow-hidden border-t border-slate-200 bg-slate-100/90 pb-12 pt-16 text-slate-700">
+      <div className="pointer-events-none absolute left-1/2 top-0 h-24 w-3/4 -translate-x-1/2 bg-gradient-to-b from-cyan-400/10 to-transparent" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 pb-12 border-b border-slate-200">
-          {/* Column 1: Brand & Philosophy (4 cols) */}
-          <div className="lg:col-span-4 space-y-4">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-cyan-600 via-teal-500 to-sky-500 p-[1.5px] shadow-sm">
-                <div className="w-full h-full bg-white rounded-xl flex items-center justify-center font-extrabold text-sm text-cyan-700">
-                  PS
-                </div>
-              </div>
-              <span className="text-xl font-extrabold tracking-tight text-slate-900 font-sans">
-                ProSIM
-              </span>
-              <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-cyan-50 text-cyan-800 border border-cyan-200 uppercase">
-                R&D Center
-              </span>
+      <div className="page-shell ">
+        <div className="grid grid-cols-1 gap-10 border-b border-slate-200 pb-12 md:grid-cols-2 lg:grid-cols-12">
+          <Reveal className="space-y-4 lg:col-span-4" delay={0.05}>
+            <div className="flex items-center">
+              <Logo />
             </div>
 
-            <p className="text-xs text-slate-600 leading-relaxed max-w-sm">
-              ProSIM is a multidisciplinary engineering and design company delivering reliable solutions across the Energy, Process, Utilities, and Infrastructure sectors, working with EPCs, OEMs, and engineering service companies from engineering design through detailed engineering and analysis.
+            <p className="max-w-sm text-xs leading-relaxed text-slate-600">
+              ProSIM is a multidisciplinary engineering and design company delivering reliable
+              solutions across the Energy, Process, Utilities, and Infrastructure sectors, working
+              with EPCs, OEMs, and engineering service companies from engineering design through
+              detailed engineering and analysis.
             </p>
 
-            <div className="pt-2 text-xs text-slate-500 space-y-1">
+            <div className="space-y-1 pt-2 text-xs text-slate-500">
               <div className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-cyan-600" />
-                <span>ISO 9001:2015 & ISO 27001 Certified</span>
+                <ShieldCheck className="h-4 w-4 text-cyan-600" aria-hidden />
+                <span>ISO 9001:2015 &amp; ISO 27001 Certified</span>
               </div>
               <div className="flex items-center gap-2">
-                <Globe2 className="w-4 h-4 text-teal-600" />
+                <Globe2 className="h-4 w-4 text-teal-600" aria-hidden />
                 <span>Global Codes: ASME, RCC-M, API 579, BS 7910</span>
               </div>
             </div>
-          </div>
+          </Reveal>
 
-          {/* Column 2: Industries We Serve (3 cols) */}
-          <div className="lg:col-span-3 space-y-3">
-            <h4 className="text-xs font-bold uppercase font-mono tracking-wider text-cyan-800">
+          <Reveal className="space-y-3 lg:col-span-3" delay={0.12}>
+            <h2 className="font-mono text-xs font-bold uppercase tracking-wider text-cyan-800">
               Industries We Serve
-            </h4>
-            <ul className="space-y-2 text-xs">
-              {[
-                { name: 'Nuclear Power Island', href: 'industries' },
-                { name: 'Thermal & Supercritical Energy', href: 'industries' },
-                { name: 'Oil & Gas Production', href: 'industries' },
-                { name: 'Petrochemical Plants', href: 'industries' },
-                { name: 'Industrial & Heavy Engineering', href: 'industries' },
-                { name: 'Power & Grid Utilities', href: 'industries' },
-              ].map((item, idx) => (
-                <li key={idx}>
-                  <button
-                    onClick={() => scrollToSection(item.href)}
-                    className="hover:text-cyan-700 transition-colors flex items-center gap-1 cursor-pointer text-slate-600"
-                  >
-                    <ChevronRight className="w-3 h-3 text-slate-400" />
-                    <span>{item.name}</span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
+            </h2>
+            {renderLinkList(INDUSTRY_LINKS, 'industries')}
+          </Reveal>
 
-          {/* Column 3: Core Disciplines (3 cols) */}
-          <div className="lg:col-span-3 space-y-3">
-            <h4 className="text-xs font-bold uppercase font-mono tracking-wider text-cyan-800">
+          <Reveal className="space-y-3 lg:col-span-3" delay={0.18}>
+            <h2 className="font-mono text-xs font-bold uppercase tracking-wider text-cyan-800">
               Engineering Disciplines
-            </h4>
-            <ul className="space-y-2 text-xs">
-              {[
-                { name: 'Finite Element Analysis (FEA)', href: 'services' },
-                { name: 'Computational Fluid Dynamics (CFD)', href: 'services' },
-                { name: 'Piping Stress & Surge Simulation', href: 'services' },
-                { name: 'Plant Engineering & 3D Modeling', href: 'services' },
-                { name: 'Fitness-For-Service (API 579)', href: 'services' },
-                { name: 'Digital Twin & RLA Studies', href: 'services' },
-              ].map((item, idx) => (
-                <li key={idx}>
-                  <button
-                    onClick={() => scrollToSection(item.href)}
-                    className="hover:text-cyan-700 transition-colors flex items-center gap-1 cursor-pointer text-slate-600"
-                  >
-                    <ChevronRight className="w-3 h-3 text-slate-400" />
-                    <span>{item.name}</span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
+            </h2>
+            {renderLinkList(DISCIPLINE_LINKS, 'services')}
+          </Reveal>
 
-          {/* Column 4: Quick Inquiries (2 cols) */}
-          <div className="lg:col-span-2 space-y-3">
-            <h4 className="text-xs font-bold uppercase font-mono tracking-wider text-cyan-800">
+          <Reveal className="space-y-3 lg:col-span-2" delay={0.24}>
+            <h2 className="font-mono text-xs font-bold uppercase tracking-wider text-cyan-800">
               Quick Connect
-            </h4>
+            </h2>
             <div className="space-y-2.5 text-xs text-slate-600">
               <div>
-                <span className="text-[10px] text-slate-400 uppercase font-mono block">Desk Phone</span>
-                <a href="tel:+918023477000" className="hover:text-cyan-700 font-semibold transition-colors">
+                <span className="block font-mono text-[10px] uppercase text-slate-400">
+                  Desk Phone
+                </span>
+                <a
+                  href="tel:+918023477000"
+                  className="font-semibold transition-colors hover:text-cyan-700"
+                >
                   +91 (080) 2347-7000
                 </a>
               </div>
 
               <div>
-                <span className="text-[10px] text-slate-400 uppercase font-mono block">Technical Email</span>
-                <a href="mailto:info@prosim.co.in" className="hover:text-cyan-700 font-semibold transition-colors truncate block">
+                <span className="block font-mono text-[10px] uppercase text-slate-400">
+                  Technical Email
+                </span>
+                <a
+                  href="mailto:info@prosim.co.in"
+                  className="block truncate font-semibold transition-colors hover:text-cyan-700"
+                >
                   info@prosim.co.in
                 </a>
               </div>
 
               <div className="pt-2">
-                <button
+                <MagneticButton
+                  type="button"
                   onClick={onOpenConsultation}
-                  className="w-full py-2 px-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 text-white font-bold text-xs transition-colors cursor-pointer shadow-xs"
+                  className="w-full cursor-pointer rounded-lg bg-cyan-600 px-3 py-2 text-xs font-bold text-white shadow-xs transition-colors hover:bg-cyan-700"
                 >
                   RFP Consultation
-                </button>
+                </MagneticButton>
               </div>
             </div>
-          </div>
+          </Reveal>
         </div>
 
-        {/* Bottom Bar: Copyright & Back-to-Top */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
-            <span>© {new Date().getFullYear()} ProSIM R&D Center. All Rights Reserved.</span>
-            <span className="hidden sm:inline text-slate-300">|</span>
+        <div className="flex flex-col items-center justify-between gap-4 pt-8 text-xs text-slate-500 sm:flex-row">
+          <div className="flex flex-col items-center gap-2 text-center sm:flex-row sm:gap-4 sm:text-left">
+            <span>© {new Date().getFullYear()} ProSIM R&amp;D Center. All Rights Reserved.</span>
+            <span className="hidden text-slate-300 sm:inline">|</span>
             <span>Engineering through Delivery Excellence</span>
           </div>
 
-          <button
+          <MagneticButton
+            type="button"
             onClick={scrollToTop}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white hover:bg-slate-200 text-slate-700 border border-slate-300 transition-colors cursor-pointer text-xs font-medium shadow-xs"
+            className="flex cursor-pointer items-center gap-2 rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-xs transition-colors hover:bg-slate-200"
           >
             <span>Back to Top</span>
-            <ArrowUp className="w-3.5 h-3.5 text-cyan-600" />
-          </button>
+            <ArrowUp className="h-3.5 w-3.5 text-cyan-600" />
+          </MagneticButton>
         </div>
       </div>
     </footer>

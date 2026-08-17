@@ -1,89 +1,155 @@
-import React, { useRef, useEffect } from 'react';
-import { HERO_DATA } from '../data/prosimData';
-import { 
-  ArrowRight, 
-  ShieldCheck, 
-  Sparkles, 
-  ChevronDown,
-  Atom,
-  Layers,
+import React, { useEffect, useRef } from 'react';
+import { motion, useReducedMotion, useScroll, useTransform } from 'motion/react';
+import {
   Activity,
+  ArrowRight,
+  Atom,
+  ChevronDown,
   Cpu,
   Flame,
-  CheckCircle2,
-  Play
+  Layers,
+  ShieldCheck,
+  Sparkles,
 } from 'lucide-react';
-import { motion } from 'motion/react';
+import { HERO_DATA } from '../data/prosimData';
+import { MagneticButton } from './ui/MagneticButton';
+import { EASE_OUT_EXPO } from '../lib/motion';
 
 interface HeroProps {
   onOpenConsultation: () => void;
 }
 
+const FOCUS_CHIPS = [
+  { label: 'Nuclear Code Qualification', icon: Atom },
+  { label: 'FEA & Non-Linear Mechanics', icon: Layers },
+  { label: 'Computational Fluid Dynamics', icon: Activity },
+  { label: 'Piping & Surge Simulation', icon: Cpu },
+] as const;
+
+const HIGHLIGHTS = [
+  {
+    icon: Atom,
+    title: 'ASME & RCC-M',
+    desc: 'Nuclear Class 1, 2, 3 Code Verification',
+    tone: 'bg-cyan-950 border-cyan-500/30 text-cyan-400',
+  },
+  {
+    icon: Flame,
+    title: 'API 579 / FFS',
+    desc: 'Fitness-For-Service & Remaining Life (RLA)',
+    tone: 'bg-teal-950 border-teal-500/30 text-teal-400',
+  },
+  {
+    icon: Activity,
+    title: 'High-Fidelity CFD',
+    desc: 'Thermal Hydraulics & Vortex Shedding',
+    tone: 'bg-sky-950 border-sky-500/30 text-sky-400',
+  },
+  {
+    icon: Cpu,
+    title: 'Digital Twin',
+    desc: 'Asset Health Monitoring & Simulation',
+    tone: 'bg-emerald-950 border-emerald-500/30 text-emerald-400',
+  },
+] as const;
+
 export const Hero: React.FC<HeroProps> = ({ onOpenConsultation }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const reduceMotion = useReducedMotion();
 
+  /**
+   * Only the vignette parallaxes now. The video itself is deliberately left
+   * untransformed: any scroll-driven zoom or drift would pull the frame's
+   * edges out of view, and the whole frame needs to stay visible.
+   */
+  const { scrollYProgress } = useScroll({
+    target: stageRef,
+    offset: ['start start', 'end start'],
+  });
+  const overlayOpacity = useTransform(scrollYProgress, [0, 1], [0.35, 0.85]);
+
+  /**
+   * Keep the background video playing without fighting the browser.
+   *
+   * The previous implementation called play() from the video's own `onPause`
+   * handler — a rejected play() fires `pause` again, so a blocked autoplay
+   * could spin in a tight loop — and polled every 1.5s for the lifetime of the
+   * page. This instead reacts to the events that actually matter, and pauses
+   * the video outright once it scrolls off screen to save decode work.
+   */
   useEffect(() => {
-    // Continuous uninterrupted video autoplay
-    const startPlayback = () => {
-      if (videoRef.current) {
-        videoRef.current.muted = true;
-        videoRef.current.defaultMuted = true;
-        videoRef.current.play().catch(() => {
-          const forcePlayOnGesture = () => {
-            if (videoRef.current) {
-              videoRef.current.muted = true;
-              videoRef.current.play().catch(() => {});
-            }
-            window.removeEventListener('click', forcePlayOnGesture);
-            window.removeEventListener('touchstart', forcePlayOnGesture);
-            window.removeEventListener('scroll', forcePlayOnGesture);
-          };
-          window.addEventListener('click', forcePlayOnGesture, { once: true });
-          window.addEventListener('touchstart', forcePlayOnGesture, { once: true });
-          window.addEventListener('scroll', forcePlayOnGesture, { once: true });
-        });
-      }
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.muted = true;
+
+    const tryPlay = () => {
+      // `play()` rejects when autoplay is blocked; the gesture listeners below
+      // pick it up from there.
+      void video.play().catch(() => undefined);
     };
 
-    startPlayback();
-
-    // Heartbeat check: guarantee video is playing and never stuck
-    const interval = setInterval(() => {
-      if (videoRef.current && videoRef.current.paused) {
-        videoRef.current.play().catch(() => {});
-      }
-    }, 1500);
-
-    const handleVisibility = () => {
-      if (!document.hidden && videoRef.current) {
-        videoRef.current.play().catch(() => {});
-      }
+    const onFirstGesture = () => {
+      tryPlay();
+      window.removeEventListener('pointerdown', onFirstGesture);
+      window.removeEventListener('keydown', onFirstGesture);
     };
 
-    document.addEventListener('visibilitychange', handleVisibility);
-    window.addEventListener('focus', startPlayback);
+    const onVisibility = () => {
+      if (document.hidden) video.pause();
+      else tryPlay();
+    };
+
+    tryPlay();
+    window.addEventListener('pointerdown', onFirstGesture, { once: true });
+    window.addEventListener('keydown', onFirstGesture, { once: true });
+    document.addEventListener('visibilitychange', onVisibility);
+
+    // Only decode frames while the hero is actually on screen.
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) tryPlay();
+        else video.pause();
+      },
+      { threshold: 0.05 },
+    );
+    observer.observe(video);
 
     return () => {
-      clearInterval(interval);
-      document.removeEventListener('visibilitychange', handleVisibility);
-      window.removeEventListener('focus', startPlayback);
+      window.removeEventListener('pointerdown', onFirstGesture);
+      window.removeEventListener('keydown', onFirstGesture);
+      document.removeEventListener('visibilitychange', onVisibility);
+      observer.disconnect();
     };
   }, []);
 
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
+    if (!el) return;
+    const top = el.getBoundingClientRect().top + window.scrollY - 88;
+    window.scrollTo({ top: Math.max(0, top), behavior: reduceMotion ? 'auto' : 'smooth' });
   };
 
   return (
-    <div id="home" className="w-full flex flex-col bg-slate-950">
-      
-      {/* 1. TOP VIDEO STAGE (Transparent Top Nav sits upon this; Video plays clearly 100% unobscured) */}
-      <section className="relative w-full h-[52vh] min-h-[380px] max-h-[640px] sm:h-[60vh] overflow-hidden flex flex-col justify-between">
-        
-        {/* Full-bleed crisp continuous autoplaying industrial video */}
+    <div id="home" className="flex w-full flex-col bg-slate-950">
+      {/* ---------------- Video stage ---------------- */}
+      {/*
+       * Stage geometry.
+       *
+       * The clip is 1280x720 and carries a generator watermark in its
+       * bottom-right corner. Rather than zooming in (which would lose the left
+       * and right edges of the frame), the stage takes the source's full width
+       * and a shorter aspect ratio — 1280x634 — so the video renders at 100%
+       * width and its bottom ~12% overflows and is clipped away. The whole
+       * frame stays visible edge to edge at every viewport size, and the
+       * watermark is never on screen because it lives in the cropped band.
+       */}
+      <section
+        ref={stageRef}
+        className="relative w-full overflow-hidden bg-slate-950"
+        style={{ aspectRatio: '1280 / 634', maxHeight: '78svh' }}
+      >
         <video
           ref={videoRef}
           autoPlay
@@ -91,179 +157,202 @@ export const Hero: React.FC<HeroProps> = ({ onOpenConsultation }) => {
           muted
           playsInline
           preload="auto"
-          onEnded={(e) => {
-            e.currentTarget.currentTime = 0;
-            e.currentTarget.play().catch(() => {});
-          }}
-          onPause={(e) => {
-            e.currentTarget.play().catch(() => {});
-          }}
-          className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none"
-          poster="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=2000&q=80"
+          aria-hidden
+          // w-full + h-auto keeps the source's own aspect ratio, so nothing is
+          // squashed; the parent's shorter ratio is what performs the crop.
+          className="pointer-events-none absolute left-0 top-0 h-auto min-h-full w-full object-cover object-top"
         >
-          <source src="/videos/refinery-hero.mp4" type="video/mp4" />
-          <source src="/videos/refinery-pipes.mp4" type="video/mp4" />
-          <source
-            src="https://videos.pexels.com/video-files/3195394/3195394-hd_1920_1080_25fps.mp4"
-            type="video/mp4"
-          />
+          {/* WebM first: ~40% smaller than the MP4 at equal quality, so the
+              hero paints sooner. The MP4 stays as a fallback for Safari. */}
+          <source src="/videos/prosim-intro.webm" type="video/webm" />
+          <source src="/videos/prosim.mp4" type="video/mp4" />
         </video>
 
-        {/* Subtle Bottom Vignette Gradient to smoothly blend into the lower content panel */}
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/40 via-transparent to-slate-950 pointer-events-none" />
-        
-        {/* Clean top spacing for floating transparent navbar */}
-        <div className="w-full h-20 sm:h-24 relative z-10 pointer-events-none" />
-
-        {/* Discrete Live Video Badge overlay inside the video area */}
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pb-4 flex items-center justify-between pointer-events-none">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full backdrop-blur-md bg-slate-950/60 border border-white/20 text-cyan-300 text-xs font-mono">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="font-semibold tracking-wide">LIVE INDUSTRIAL ENERGY & REFINERY</span>
-          </div>
-
-          <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full backdrop-blur-md bg-slate-950/60 border border-white/15 text-slate-300 text-xs font-mono">
-            <CheckCircle2 className="w-3.5 h-3.5 text-teal-400" />
-            <span>35+ Years Proven Engineering</span>
-          </div>
-        </div>
+        {/* Vignette. Kept light over the footage itself — it only deepens near
+            the very bottom so the stage melts into the panel below. */}
+        <motion.div
+          aria-hidden
+          style={reduceMotion ? undefined : { opacity: overlayOpacity }}
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-b from-transparent to-slate-950"
+        />
       </section>
 
-      {/* 2. SEGREGATED LOWER CONTENT SECTION (Clean, readable, structured, not mixing on video) */}
-      <section className="relative w-full bg-slate-950 border-t border-white/10 pt-8 pb-10 sm:pb-14">
-        {/* Ambient background glow accents */}
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
+      {/* ---------------- Content panel ---------------- */}
+      <section className="blueprint-grid relative w-full border-t border-white/10 bg-slate-950 pb-10 pt-8 sm:pb-14">
+        <div className="animate-float-slow pointer-events-none absolute left-1/4 top-0 h-96 w-96 rounded-full bg-cyan-500/10 blur-3xl" />
+        <div
+          className="animate-float-slow pointer-events-none absolute right-1/4 top-0 h-96 w-96 rounded-full bg-teal-500/10 blur-3xl"
+          style={{ animationDelay: '2.5s' }}
+        />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
-          {/* Main Headline & Compact Overview Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            
-            {/* Left Content (7 cols): Clean Typography & CTAs */}
-            <div className="lg:col-span-7 flex flex-col items-start space-y-4">
-              
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-cyan-950/80 border border-cyan-500/30 text-cyan-300 text-xs font-mono font-bold tracking-wider">
-                <span>PROSIM • MULTIDISCIPLINARY ENGINEERING & R&D</span>
-              </div>
+        <div className="relative z-10 page-shell ">
+          <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-12">
+            {/* Copy */}
+            <motion.div
+              initial="hidden"
+              animate="visible"
+              variants={{
+                hidden: {},
+                visible: { transition: { staggerChildren: 0.09, delayChildren: 0.15 } },
+              }}
+              className="flex flex-col items-start space-y-4 lg:col-span-7"
+            >
+              <motion.div
+                variants={{
+                  hidden: { opacity: 0, y: 18 },
+                  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: EASE_OUT_EXPO } },
+                }}
+                className="inline-flex items-center gap-2 rounded-md border border-cyan-500/30 bg-cyan-950/80 px-3 py-1 font-mono text-xs font-bold tracking-wider text-cyan-300"
+              >
+                <span>PROSIM • MULTIDISCIPLINARY ENGINEERING &amp; R&amp;D</span>
+              </motion.div>
 
-              <h1 className="text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight text-white leading-tight">
+              <motion.h1
+                variants={{
+                  hidden: { opacity: 0, y: 24 },
+                  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: EASE_OUT_EXPO } },
+                }}
+                className="text-3xl font-black leading-tight tracking-tight text-white sm:text-5xl lg:text-5xl"
+              >
                 Design Engineering With{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-teal-300 to-emerald-300">
+                <span className="bg-gradient-to-r from-cyan-300 via-teal-300 to-emerald-300 bg-clip-text text-transparent">
                   Delivery Excellence
                 </span>
-              </h1>
+              </motion.h1>
 
-              <p className="text-sm sm:text-base text-slate-300 font-normal leading-relaxed max-w-2xl">
-                Developing comprehensive multidisciplinary engineering packages, advanced FEA/CFD simulations, and structural life assessments for global energy and industrial leaders.
-              </p>
+              <motion.p
+                variants={{
+                  hidden: { opacity: 0, y: 20 },
+                  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE_OUT_EXPO } },
+                }}
+                className="max-w-2xl text-sm font-normal leading-relaxed text-slate-300 sm:text-base"
+              >
+                Developing comprehensive multidisciplinary engineering packages, advanced FEA/CFD
+                simulations, and structural life assessments for global energy and industrial
+                leaders.
+              </motion.p>
 
-              {/* Engineering Focus Chips */}
-              <div className="flex flex-wrap items-center gap-2 pt-1">
-                {[
-                  { label: 'Nuclear Code Qualification', icon: Atom },
-                  { label: 'FEA & Non-Linear Mechanics', icon: Layers },
-                  { label: 'Computational Fluid Dynamics', icon: Activity },
-                  { label: 'Piping & Surge Simulation', icon: Cpu }
-                ].map((item, idx) => {
-                  const Icon = item.icon;
-                  return (
-                    <div
-                      key={idx}
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900 border border-white/10 text-slate-200 text-xs font-medium"
-                    >
-                      <Icon className="w-3.5 h-3.5 text-cyan-400" />
-                      <span>{item.label}</span>
-                    </div>
-                  );
-                })}
-              </div>
+              <motion.div
+                variants={{
+                  hidden: {},
+                  visible: { transition: { staggerChildren: 0.06 } },
+                }}
+                className="flex flex-wrap items-center gap-2 pt-1"
+              >
+                {FOCUS_CHIPS.map(({ label, icon: Icon }) => (
+                  <motion.div
+                    key={label}
+                    variants={{
+                      hidden: { opacity: 0, scale: 0.9, y: 10 },
+                      visible: { opacity: 1, scale: 1, y: 0 },
+                    }}
+                    whileHover={reduceMotion ? undefined : { y: -3, scale: 1.04 }}
+                    transition={{ type: 'spring', stiffness: 320, damping: 20 }}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-slate-900 px-2.5 py-1 text-xs font-medium text-slate-200"
+                  >
+                    <Icon className="h-3.5 w-3.5 text-cyan-400" aria-hidden />
+                    <span>{label}</span>
+                  </motion.div>
+                ))}
+              </motion.div>
 
-              {/* Action Buttons */}
-              <div className="flex flex-wrap items-center gap-3 pt-3 w-full sm:w-auto">
-                <button
+              <motion.div
+                variants={{
+                  hidden: { opacity: 0, y: 18 },
+                  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: EASE_OUT_EXPO } },
+                }}
+                className="flex w-full flex-wrap items-center gap-3 pt-3 sm:w-auto"
+              >
+                <MagneticButton
                   id="hero-explore-btn"
+                  type="button"
+                  strength={8}
                   onClick={() => scrollToSection('industries')}
-                  className="px-6 py-3 rounded-xl font-bold text-sm tracking-wide bg-gradient-to-r from-cyan-500 to-teal-500 text-white shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  className="cta-halo flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 px-6 py-3 text-sm font-bold tracking-wide text-white shadow-lg shadow-cyan-500/25 transition-shadow hover:shadow-cyan-500/40"
                 >
                   <span>Explore Industries</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
+                  <ArrowRight className="h-4 w-4" />
+                </MagneticButton>
 
-                <button
+                <MagneticButton
                   id="hero-consultation-btn"
+                  type="button"
+                  strength={8}
                   onClick={onOpenConsultation}
-                  className="px-6 py-3 rounded-xl font-bold text-sm text-slate-200 bg-slate-900 hover:bg-slate-800 border border-white/20 hover:border-white/40 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-white/20 bg-slate-900 px-6 py-3 text-sm font-bold text-slate-200 transition-colors hover:border-white/40 hover:bg-slate-800"
                 >
-                  <Sparkles className="w-4 h-4 text-cyan-400" />
+                  <Sparkles className="h-4 w-4 text-cyan-400" />
                   <span>Request Consultation</span>
-                </button>
-              </div>
-            </div>
+                </MagneticButton>
+              </motion.div>
+            </motion.div>
 
-            {/* Right Content (5 cols): Key Highlights Bento Cards */}
-            <div className="lg:col-span-5 grid grid-cols-2 gap-3.5">
-              <div className="p-4 rounded-2xl bg-slate-900/90 border border-white/10 flex flex-col justify-between">
-                <div className="w-8 h-8 rounded-xl bg-cyan-950 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-2">
-                  <Atom className="w-4 h-4" />
-                </div>
-                <div>
-                  <div className="text-xl font-bold text-white">ASME & RCC-M</div>
-                  <div className="text-xs text-slate-400 mt-0.5">Nuclear Class 1, 2, 3 Code Verification</div>
-                </div>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-slate-900/90 border border-white/10 flex flex-col justify-between">
-                <div className="w-8 h-8 rounded-xl bg-teal-950 border border-teal-500/30 flex items-center justify-center text-teal-400 mb-2">
-                  <Flame className="w-4 h-4" />
-                </div>
-                <div>
-                  <div className="text-xl font-bold text-white">API 579 / FFS</div>
-                  <div className="text-xs text-slate-400 mt-0.5">Fitness-For-Service & Remaining Life (RLA)</div>
-                </div>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-slate-900/90 border border-white/10 flex flex-col justify-between">
-                <div className="w-8 h-8 rounded-xl bg-sky-950 border border-sky-500/30 flex items-center justify-center text-sky-400 mb-2">
-                  <Activity className="w-4 h-4" />
-                </div>
-                <div>
-                  <div className="text-xl font-bold text-white">High-Fidelity CFD</div>
-                  <div className="text-xs text-slate-400 mt-0.5">Thermal Hydraulics & Vortex Shedding</div>
-                </div>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-slate-900/90 border border-white/10 flex flex-col justify-between">
-                <div className="w-8 h-8 rounded-xl bg-emerald-950 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-2">
-                  <Cpu className="w-4 h-4" />
-                </div>
-                <div>
-                  <div className="text-xl font-bold text-white">Digital Twin</div>
-                  <div className="text-xs text-slate-400 mt-0.5">Asset Health Monitoring & Simulation</div>
-                </div>
-              </div>
-            </div>
-
+            {/* Bento highlights — each tile tilts independently in 3D. */}
+            <motion.div
+              initial="hidden"
+              animate="visible"
+              variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.1, delayChildren: 0.35 } } }}
+              className="grid w-full grid-cols-1 gap-3 min-[420px]:grid-cols-2 sm:gap-3.5 lg:col-span-5"
+              style={{ perspective: 1200 }}
+            >
+              {HIGHLIGHTS.map(({ icon: Icon, title, desc, tone }) => (
+                <motion.div
+                  key={title}
+                  variants={{
+                    hidden: { opacity: 0, y: 28, rotateX: -14 },
+                    visible: {
+                      opacity: 1,
+                      y: 0,
+                      rotateX: 0,
+                      transition: { duration: 0.7, ease: EASE_OUT_EXPO },
+                    },
+                  }}
+                  whileHover={
+                    reduceMotion
+                      ? undefined
+                      : { y: -6, rotateX: 6, rotateY: -6, scale: 1.03 }
+                  }
+                  transition={{ type: 'spring', stiffness: 280, damping: 20 }}
+                  style={{ transformStyle: 'preserve-3d' }}
+                  className="group flex flex-col justify-between rounded-2xl border border-white/10 bg-slate-900/90 p-4 transition-colors hover:border-cyan-400/40"
+                >
+                  <div
+                    className={`mb-2 flex h-8 w-8 items-center justify-center rounded-xl border ${tone}`}
+                    style={{ transform: 'translateZ(20px)' }}
+                  >
+                    <Icon className="h-4 w-4" aria-hidden />
+                  </div>
+                  <div style={{ transform: 'translateZ(14px)' }}>
+                    <div className="text-lg font-bold leading-tight text-white sm:text-xl">
+                      {title}
+                    </div>
+                    <div className="mt-0.5 text-[11px] leading-snug text-slate-400 sm:text-xs">
+                      {desc}
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
           </div>
 
-          {/* Bottom Capabilities Ticker */}
-          <div className="mt-8 rounded-xl p-3 bg-slate-900 border border-white/10 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-slate-300">
-            <div className="flex items-center gap-2 text-cyan-400 font-bold uppercase tracking-wider font-mono shrink-0">
-              <ShieldCheck className="w-4 h-4 text-teal-400" />
+          {/* Capabilities ticker */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.75, duration: 0.7, ease: EASE_OUT_EXPO }}
+            className="marquee-track mt-8 flex flex-col items-center justify-between gap-3 rounded-xl border border-white/10 bg-slate-900 p-3 text-xs text-slate-300 md:flex-row"
+          >
+            <div className="flex shrink-0 items-center gap-2 font-mono font-bold uppercase tracking-wider text-cyan-400">
+              <ShieldCheck className="h-4 w-4 text-teal-400" />
               <span>Engineering Capabilities</span>
             </div>
 
-            <div className="overflow-hidden w-full">
-              <div className="animate-marquee whitespace-nowrap flex gap-8 items-center text-slate-200 font-medium">
-                {HERO_DATA.tickerItems.map((item, idx) => (
-                  <span key={idx} className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
-                    <span>{item}</span>
-                  </span>
-                ))}
-                {HERO_DATA.tickerItems.map((item, idx) => (
-                  <span key={`dup-${idx}`} className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+            <div className="w-full overflow-hidden">
+              <div className="animate-marquee items-center gap-8 whitespace-nowrap font-medium text-slate-200">
+                {/* Duplicated once so the -50% translate loops seamlessly. */}
+                {[...HERO_DATA.tickerItems, ...HERO_DATA.tickerItems].map((item, idx) => (
+                  <span key={`${item}-${idx}`} className="flex items-center gap-2 pr-8">
+                    <span className="h-1.5 w-1.5 rounded-full bg-cyan-400" />
                     <span>{item}</span>
                   </span>
                 ))}
@@ -271,17 +360,16 @@ export const Hero: React.FC<HeroProps> = ({ onOpenConsultation }) => {
             </div>
 
             <button
+              type="button"
               onClick={() => scrollToSection('clients')}
-              className="hidden md:flex items-center gap-1 text-cyan-300 hover:text-white transition-colors shrink-0 font-bold cursor-pointer"
+              className="hidden shrink-0 cursor-pointer items-center gap-1 font-bold text-cyan-300 transition-colors hover:text-white md:flex"
             >
               <span>Clients</span>
-              <ChevronDown className="w-3.5 h-3.5" />
+              <ChevronDown className="h-3.5 w-3.5" />
             </button>
-          </div>
-
+          </motion.div>
         </div>
       </section>
-
     </div>
   );
 };

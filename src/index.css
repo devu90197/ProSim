@@ -1,54 +1,205 @@
 @import "tailwindcss";
 
+/* ------------------------------------------------------------------ *
+ * Design tokens
+ * ------------------------------------------------------------------ */
+@theme {
+  --color-brand-50: #ecfeff;
+  --color-brand-100: #cffafe;
+  --color-brand-400: #22d3ee;
+  --color-brand-500: #06b6d4;
+  --color-brand-600: #0891b2;
+  --color-brand-700: #0e7490;
+
+  /* Height of the fixed header, used for anchor scroll offset. */
+  --nav-height: 4.5rem;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --marquee-duration: 42s;
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
+    /* Without this, #anchor targets land underneath the fixed navbar. */
+    scroll-padding-top: calc(var(--nav-height) + 1rem);
+    -webkit-text-size-adjust: 100%;
   }
+
   body {
     background-color: #f8fafc;
     color: #0f172a;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+      Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     overflow-x: hidden;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Sections are scroll targets; keep them clear of the fixed header. */
+  section[id] {
+    scroll-margin-top: calc(var(--nav-height) + 1rem);
+  }
+
+  /* Visible keyboard focus everywhere, without a permanent mouse-click ring. */
+  :focus-visible {
+    outline: 2px solid var(--color-brand-500);
+    outline-offset: 2px;
+    border-radius: 0.375rem;
+  }
+
+  ::selection {
+    background-color: var(--color-brand-500);
+    color: #fff;
   }
 }
 
-/* Custom marquee keyframes */
+/* ------------------------------------------------------------------ *
+ * Page shell
+ *
+ * One container width for every section. A fixed max-w-7xl stranded ultrawide
+ * displays inside huge empty gutters, so the ceiling steps up past 1536px and
+ * again past 1920px while the gutters themselves scale with the viewport.
+ * ------------------------------------------------------------------ */
+.page-shell {
+  width: 100%;
+  margin-inline: auto;
+  max-width: 80rem;
+  padding-inline: clamp(1rem, 4vw, 2rem);
+}
+
+@media (min-width: 1536px) {
+  .page-shell { max-width: 90rem; }
+}
+
+@media (min-width: 1920px) {
+  .page-shell { max-width: 102rem; }
+}
+
+/* ------------------------------------------------------------------ *
+ * Keyframes
+ * ------------------------------------------------------------------ */
 @keyframes marquee {
-  0% {
-    transform: translateX(0%);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
 }
 
 @keyframes marquee-reverse {
-  0% {
-    transform: translateX(-50%);
-  }
-  100% {
-    transform: translateX(0%);
-  }
+  from { transform: translate3d(-50%, 0, 0); }
+  to   { transform: translate3d(0, 0, 0); }
 }
 
-.animate-marquee {
-  display: flex;
-  width: max-content;
-  animation: marquee 35s linear infinite;
+/* Slow vertical drift used by ambient background orbs. */
+@keyframes float-slow {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50%      { transform: translate3d(0, -18px, 0); }
 }
 
+/* Sweeping highlight for gradient borders and skeleton shine. */
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+/* Soft breathing halo behind primary CTAs. */
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.45; transform: scale(1); }
+  50%      { opacity: 0.85; transform: scale(1.06); }
+}
+
+@keyframes grid-drift {
+  from { background-position: 0 0; }
+  to   { background-position: 60px 60px; }
+}
+
+/* ------------------------------------------------------------------ *
+ * Marquee
+ * ------------------------------------------------------------------ */
+.animate-marquee,
 .animate-marquee-reverse {
   display: flex;
   width: max-content;
-  animation: marquee-reverse 35s linear infinite;
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
-.animate-marquee:hover,
-.animate-marquee-reverse:hover {
+.animate-marquee {
+  animation: marquee var(--marquee-duration) linear infinite;
+}
+
+.animate-marquee-reverse {
+  animation: marquee-reverse var(--marquee-duration) linear infinite;
+}
+
+/* Pause on hover from the wrapper so the gap between items counts too. */
+.marquee-track:hover .animate-marquee,
+.marquee-track:hover .animate-marquee-reverse,
+.marquee-track:focus-within .animate-marquee,
+.marquee-track:focus-within .animate-marquee-reverse {
   animation-play-state: paused;
 }
 
-/* Liquid Glassmorphism Light Theme Classes */
+.animate-float-slow {
+  animation: float-slow 9s ease-in-out infinite;
+}
+
+/* ------------------------------------------------------------------ *
+ * 3D / depth utilities
+ * ------------------------------------------------------------------ */
+.perspective-card {
+  perspective: 1200px;
+  perspective-origin: center;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+/* Lifts an element toward the viewer inside a preserve-3d parent. */
+.depth-1 { transform: translateZ(18px); }
+.depth-2 { transform: translateZ(34px); }
+.depth-3 { transform: translateZ(52px); }
+
+/* Animated conic border used on featured panels. */
+.gradient-border {
+  position: relative;
+  background-clip: padding-box;
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    110deg,
+    transparent 20%,
+    rgba(6, 182, 212, 0.65) 45%,
+    rgba(20, 184, 166, 0.65) 55%,
+    transparent 80%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 6s linear infinite;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Faint engineering blueprint grid for dark stage sections. */
+.blueprint-grid {
+  background-image:
+    linear-gradient(rgba(148, 163, 184, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.07) 1px, transparent 1px);
+  background-size: 60px 60px;
+  animation: grid-drift 24s linear infinite;
+}
+
+/* ------------------------------------------------------------------ *
+ * Glassmorphism (light theme)
+ * ------------------------------------------------------------------ */
 .glass-panel-light {
   background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(20px);
@@ -65,7 +216,6 @@
   box-shadow: 0 12px 36px -8px rgba(6, 182, 212, 0.15), 0 1px 3px rgba(15, 23, 42, 0.04);
 }
 
-/* Floating Liquid Glass Pill Navigation */
 .glass-pill-nav {
   background: rgba(255, 255, 255, 0.82);
   backdrop-filter: blur(24px);
@@ -74,34 +224,63 @@
   box-shadow: 0 8px 30px -4px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
 }
 
-.glass-pill-nav-scrolled {
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(28px);
-  border: 1px solid rgba(6, 182, 212, 0.25);
-  box-shadow: 0 12px 35px -6px rgba(15, 23, 42, 0.12), 0 4px 10px -2px rgba(6, 182, 212, 0.06);
-}
-
-/* Glow effects for light theme */
 .glow-cyan-light {
   box-shadow: 0 0 25px -4px rgba(6, 182, 212, 0.3);
 }
 
-.glow-cyan-hover:hover {
-  box-shadow: 0 0 35px -2px rgba(6, 182, 212, 0.4);
+.cta-halo {
+  position: relative;
 }
 
-/* Refined Light Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
+.cta-halo::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: inherit;
+  background: radial-gradient(closest-side, rgba(6, 182, 212, 0.4), transparent);
+  filter: blur(10px);
+  animation: pulse-glow 3.2s ease-in-out infinite;
+  z-index: -1;
+  pointer-events: none;
 }
-::-webkit-scrollbar-track {
-  background: #f1f5f9;
-}
+
+/* ------------------------------------------------------------------ *
+ * Scrollbar
+ * ------------------------------------------------------------------ */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: #f1f5f9; }
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
-  border-radius: 4px;
+  border-radius: 6px;
+  border: 2px solid #f1f5f9;
 }
-::-webkit-scrollbar-thumb:hover {
-  background: #0ea5e9;
+::-webkit-scrollbar-thumb:hover { background: #0ea5e9; }
+
+/* Locks background scroll while a modal is open, without layout shift. */
+body.modal-open {
+  overflow: hidden;
+  padding-right: var(--scrollbar-gap, 0px);
+}
+
+/* ------------------------------------------------------------------ *
+ * Reduced motion — honour the OS setting across every effect above
+ * ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .animate-marquee,
+  .animate-marquee-reverse {
+    /* Freeze the loop rather than flashing through it. */
+    animation: none !important;
+    transform: none !important;
+  }
 }
