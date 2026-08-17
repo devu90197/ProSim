@@ -149,21 +149,30 @@ export const ContactSection: React.FC = () => {
             <div className="space-y-4 text-xs text-slate-600">
               <div className="flex items-start gap-3.5 rounded-2xl border border-slate-200 bg-slate-50/80 p-3 transition-colors hover:border-cyan-300">
                 <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-cyan-600" aria-hidden />
-                <div className="min-w-0">
+                {/*
+                 * The address is a block-level paragraph and the button sits in
+                 * its own row beneath it. Both matter: as an inline span the
+                 * address let the button wrap onto the same line, where a top
+                 * margin on an inline-flex element overlaps the text instead of
+                 * pushing it clear.
+                 */}
+                <div className="min-w-0 flex-1">
                   <span className="mb-0.5 block font-bold text-slate-900">
                     Corporate &amp; Technical Center
                   </span>
-                  <span>{HQ_ADDRESS}</span>
+                  <p className="leading-relaxed">{HQ_ADDRESS}</p>
 
-                  <MagneticButton
-                    type="button"
-                    onClick={openDirections}
-                    aria-label="Get directions to the ProSIM headquarters — opens your maps app"
-                    className="mt-2.5 inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-cyan-200 bg-white px-3 py-1.5 text-[11px] font-bold text-cyan-700 shadow-xs transition-colors hover:border-cyan-500 hover:bg-cyan-50"
-                  >
-                    <Navigation className="h-3.5 w-3.5" aria-hidden />
-                    <span>Get Directions</span>
-                  </MagneticButton>
+                  <div className="mt-3.5">
+                    <MagneticButton
+                      type="button"
+                      onClick={openDirections}
+                      aria-label="Get directions to the ProSIM headquarters — opens your maps app"
+                      className="inline-flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-cyan-200 bg-white px-3 py-2 text-[11px] font-bold text-cyan-700 shadow-xs transition-colors hover:border-cyan-500 hover:bg-cyan-50 sm:w-auto sm:py-1.5"
+                    >
+                      <Navigation className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                      <span>Get Directions</span>
+                    </MagneticButton>
+                  </div>
                 </div>
               </div>
 
