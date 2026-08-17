@@ -137,18 +137,19 @@ export const Hero: React.FC<HeroProps> = ({ onOpenConsultation }) => {
       {/*
        * Stage geometry.
        *
-       * The clip is 1280x720 and carries a generator watermark in its
-       * bottom-right corner. Rather than zooming in (which would lose the left
-       * and right edges of the frame), the stage takes the source's full width
-       * and a shorter aspect ratio — 1280x634 — so the video renders at 100%
-       * width and its bottom ~12% overflows and is clipped away. The whole
-       * frame stays visible edge to edge at every viewport size, and the
-       * watermark is never on screen because it lives in the cropped band.
+       * The source clip was cropped at the file level from 1280x720 to
+       * 1126x720, which physically removes the generator watermark that sat in
+       * the bottom-right corner. Because the mark is gone from the asset
+       * itself, no CSS masking or offset is needed and the full frame can be
+       * shown: the stage matches the video's 1126x720 ratio exactly, so on
+       * phones and tablets the entire frame is visible edge to edge. The
+       * height cap only engages on wide desktops, where it trims the sides
+       * evenly rather than letting the hero grow past the fold.
        */}
       <section
         ref={stageRef}
         className="relative w-full overflow-hidden bg-slate-950"
-        style={{ aspectRatio: '1280 / 634', maxHeight: '78svh' }}
+        style={{ aspectRatio: '1126 / 720', maxHeight: '76svh' }}
       >
         <video
           ref={videoRef}
@@ -158,12 +159,11 @@ export const Hero: React.FC<HeroProps> = ({ onOpenConsultation }) => {
           playsInline
           preload="auto"
           aria-hidden
-          // w-full + h-auto keeps the source's own aspect ratio, so nothing is
-          // squashed; the parent's shorter ratio is what performs the crop.
-          className="pointer-events-none absolute left-0 top-0 h-auto min-h-full w-full object-cover object-top"
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center"
         >
-          {/* WebM first: ~40% smaller than the MP4 at equal quality, so the
-              hero paints sooner. The MP4 stays as a fallback for Safari. */}
+          {/* WebM (VP9) first — smaller than the MP4 at equal quality, so the
+              hero paints sooner. H.264 MP4 stays as the Safari fallback.
+              Both are audio-free, since the hero is permanently muted. */}
           <source src="/videos/prosim-intro.webm" type="video/webm" />
           <source src="/videos/prosim.mp4" type="video/mp4" />
         </video>
