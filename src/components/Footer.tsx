@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
-import { ArrowUp, ChevronRight, Globe2, ShieldCheck } from 'lucide-react';
+import { ArrowUp, ChevronRight, ExternalLink, Globe2, ShieldCheck } from 'lucide-react';
 import { MagneticButton } from './ui/MagneticButton';
 import { Logo } from './ui/Logo';
 import { Reveal } from './ui/Reveal';
@@ -164,6 +164,29 @@ export const Footer: React.FC<FooterProps> = ({ onOpenConsultation }) => {
             <span>Back to Top</span>
             <ArrowUp className="h-3.5 w-3.5 text-cyan-600" />
           </MagneticButton>
+        </div>
+
+        {/* Build credit. Opens in a new tab; rel="noopener" keeps the target
+            page from reaching back into this one via window.opener. */}
+        <div className="mt-6 border-t border-slate-200 pt-5 text-center">
+          <p className="text-[11px] text-slate-500">
+            Developed &amp; Powered by{' '}
+            <motion.a
+              href="https://ezbillify.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              whileHover={reduceMotion ? undefined : { y: -1 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 22 }}
+              className="group inline-flex items-center gap-1 font-bold text-cyan-700 underline decoration-cyan-300 decoration-dotted underline-offset-4 transition-colors hover:text-cyan-900 hover:decoration-cyan-600"
+            >
+              <span>EZBillify Ventures</span>
+              <ExternalLink
+                className="h-3 w-3 opacity-60 transition-opacity group-hover:opacity-100"
+                aria-hidden
+              />
+              <span className="sr-only">(opens in a new tab)</span>
+            </motion.a>
+          </p>
         </div>
       </div>
     </footer>
