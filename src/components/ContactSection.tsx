@@ -4,6 +4,7 @@ import {
   Clock,
   Mail,
   MapPin,
+  Navigation,
   Phone,
   Send,
   ShieldCheck,
@@ -16,6 +17,32 @@ import { Reveal } from './ui/Reveal';
 
 /** Matches the limit advertised in the upload control's helper text. */
 const MAX_UPLOAD_BYTES = 50 * 1024 * 1024;
+
+/** Single source of truth for the HQ address — shown on screen and sent to maps. */
+const HQ_ADDRESS =
+  'ProSIM R&D Center, #39, 1st Main, Industrial Suburb, Yeshwanthpur, Bengaluru - 560022, Karnataka, India';
+
+/**
+ * Opens turn-by-turn directions in whatever mapping app the device prefers.
+ *
+ * Apple platforms get a maps.apple.com link, which hands off to the built-in
+ * Maps app; everywhere else gets the Google Maps universal URL, which opens
+ * the native app when it is installed and falls back to the web map when it is
+ * not. The destination is passed as the address string rather than hard-coded
+ * coordinates, so the map geocodes the same address shown on the page.
+ */
+const openDirections = () => {
+  const destination = encodeURIComponent(HQ_ADDRESS);
+
+  // iPadOS 13+ reports itself as "Macintosh", which lands on Apple Maps either way.
+  const isApplePlatform = /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent);
+
+  const url = isApplePlatform
+    ? `https://maps.apple.com/?daddr=${destination}`
+    : `https://www.google.com/maps/dir/?api=1&destination=${destination}`;
+
+  window.open(url, '_blank', 'noopener,noreferrer');
+};
 
 const EMPTY_FORM = {
   fullName: '',
@@ -122,14 +149,21 @@ export const ContactSection: React.FC = () => {
             <div className="space-y-4 text-xs text-slate-600">
               <div className="flex items-start gap-3.5 rounded-2xl border border-slate-200 bg-slate-50/80 p-3 transition-colors hover:border-cyan-300">
                 <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-cyan-600" aria-hidden />
-                <div>
+                <div className="min-w-0">
                   <span className="mb-0.5 block font-bold text-slate-900">
                     Corporate &amp; Technical Center
                   </span>
-                  <span>
-                    ProSIM R&amp;D Center, #39, 1st Main, Industrial Suburb, Yeshwanthpur,
-                    Bengaluru - 560022, Karnataka, India
-                  </span>
+                  <span>{HQ_ADDRESS}</span>
+
+                  <MagneticButton
+                    type="button"
+                    onClick={openDirections}
+                    aria-label="Get directions to the ProSIM headquarters — opens your maps app"
+                    className="mt-2.5 inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-cyan-200 bg-white px-3 py-1.5 text-[11px] font-bold text-cyan-700 shadow-xs transition-colors hover:border-cyan-500 hover:bg-cyan-50"
+                  >
+                    <Navigation className="h-3.5 w-3.5" aria-hidden />
+                    <span>Get Directions</span>
+                  </MagneticButton>
                 </div>
               </div>
 
