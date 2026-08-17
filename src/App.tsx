@@ -18,6 +18,7 @@ import { Footer } from './components/Footer';
 import { IndustryModal } from './components/IndustryModal';
 import { ConsultationModal } from './components/ConsultationModal';
 import { JobApplyModal } from './components/JobApplyModal';
+import { BackToTop } from './components/ui/BackToTop';
 import type { IndustryItem, JobOpening } from './types';
 
 export default function App() {
@@ -70,6 +71,9 @@ export default function App() {
       <ConsultationModal isOpen={consultationOpen} onClose={closeConsultation} />
 
       <JobApplyModal job={selectedJob} onClose={closeJob} />
+
+      {/* Persistent floating scroll-to-top control, shown on every breakpoint. */}
+      <BackToTop />
     </div>
   );
 }
