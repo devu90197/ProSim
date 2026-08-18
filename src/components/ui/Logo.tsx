@@ -12,10 +12,13 @@ interface LogoProps {
 /**
  * The ProSIM wordmark.
  *
- * The source artwork is a wide lockup on a white ground, so on dark surfaces it
- * sits on a rounded white plate rather than being punched out — that keeps the
- * black "Pro", the green "SIM" and the blue tagline at full contrast instead of
- * losing the darker halves against the video behind it.
+ * The source artwork is a wide lockup drawn for a white page, so over the hero
+ * video it used to sit on an opaque white plate. That plate read as a sticker
+ * bolted onto the design. Instead there is now a dedicated dark-surface
+ * variant (`/logo-dark.png`) with the white page ground knocked out and the
+ * black "Pro" redrawn in white, while the green "SIM", the orange bar and the
+ * tagline keep their brand ink. The mark can therefore sit directly on the
+ * video with nothing behind it.
  *
  * Sizing is fluid: the height scales with the viewport through `clamp()`, and
  * width follows the artwork's own aspect ratio, so the mark stays crisp and
@@ -29,17 +32,17 @@ export const Logo: React.FC<LogoProps> = ({ onDark = false, className = '', prio
       whileHover={reduceMotion ? undefined : { rotateY: 8, rotateX: -4, scale: 1.04 }}
       transition={{ type: 'spring', stiffness: 300, damping: 20 }}
       style={{ transformPerspective: 800 }}
-      className={`inline-flex shrink-0 items-center justify-center rounded-xl transition-shadow ${
-        onDark
-          ? 'bg-white/95 px-2 py-1.5 shadow-lg shadow-cyan-500/10 ring-1 ring-white/40 sm:px-2.5'
-          : 'bg-transparent'
-      } ${className}`}
+      className={`inline-flex shrink-0 items-center justify-center bg-transparent ${className}`}
     >
-      <picture>
-        {/* WebP is ~27KB against the PNG's ~94KB; the PNG stays for fallback. */}
-        <source srcSet="/logo.webp" type="image/webp" />
+      {/* Keyed so the element remounts when the surface flips. A <picture>
+          resolves its <source> list once, so swapping the child in place can
+          leave the browser showing the previous variant. */}
+      <picture key={onDark ? 'dark' : 'light'}>
+        {/* WebP is ~27KB against the PNG's ~94KB; the PNG stays for fallback.
+            The dark variant is PNG-only — it is served to one surface. */}
+        {!onDark && <source srcSet="/logo.webp" type="image/webp" />}
         <img
-          src="/logo.png"
+          src={onDark ? '/logo-dark.png' : '/logo.png'}
           alt="ProSIM — engineering your designs"
           // Intrinsic size of the trimmed artwork. Declaring it reserves the
           // right box up front so the header does not shift as the logo loads.

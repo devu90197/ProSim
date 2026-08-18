@@ -1,17 +1,24 @@
 import type {
   ClientItem,
+  CredentialItem,
   IndustryItem,
   JobOpening,
+  PillarItem,
   ProjectCaseStudy,
   ServiceItem,
   StatItem,
 } from '../types';
 
 export const HERO_DATA = {
-  headline: "Engineering through Delivery Excellence",
+  eyebrow: "ProSIM / Detailed Engineering & Analysis",
+  headline: "Engineering through",
+  headlineAccent: "Delivery Excellence",
   subheadline: "Delivering innovative engineering solutions across energy sectors, helping customers solve their most pressing challenges through delivery excellence.",
+  videoCta: "Unveiling ProSIM",
   primaryCta: "Explore Industries",
   secondaryCta: "Request Engineering Consultation",
+  /** Sits under the hero CTAs, mirroring the reference site's social proof line. */
+  socialProof: "800+ trusted customers worldwide",
   tickerItems: [
     "ASME Sec III / VIII & RCC-M Nuclear Codes",
     "Finite Element Analysis & Structural Dynamics",
@@ -24,8 +31,16 @@ export const HERO_DATA = {
 
 export const ABOUT_DATA = {
   companyName: "ProSIM",
-  tagline: "Multidisciplinary Engineering & Simulation Partners",
-  statement: "ProSIM is a multidisciplinary engineering and design company delivering reliable solutions across the Energy, Process, Utilities, and Infrastructure sectors, working with EPCs, OEMs, and engineering service companies from engineering design through detailed engineering and analysis.",
+  tagline: "Your Detailed Engineering Partner for Complex Projects",
+  /**
+   * Paraphrased from the company deck. The scope line is deliberate: ProSIM
+   * picks a project up at the detailed engineering stage - front-end and basic
+   * engineering are outside the remit - so the copy never implies FEED or
+   * concept-phase services.
+   */
+  statement: "ProSIM is a multidisciplinary engineering and design company delivering dependable solutions across the Energy, Process, Utilities and Infrastructure sectors. We work alongside EPCs, OEMs and engineering service providers, taking projects forward from detailed engineering through to rigorous analysis and validation.",
+  statementSecondary: "Our commitment is to turn approved designs into reliable, buildable engineering. Every deliverable is backed by deep technical expertise, rigorous analysis and a clear grasp of how the asset behaves in the real world.",
+  scopeNote: "ProSIM specialises exclusively in detailed engineering and analysis. We do not undertake front-end or basic engineering scopes.",
   pillars: [
     {
       title: "Advanced Physics-Based Simulation",
@@ -36,8 +51,8 @@ export const ABOUT_DATA = {
       desc: "Deep compliance mastery with ASME, RCC-M, API 579, BS 7910, IEEE, EN, and AERB nuclear/industrial standards."
     },
     {
-      title: "End-to-End Delivery Excellence",
-      desc: "From conceptual design and sizing calculation to 3D CAD modeling, detailed design, and life extension."
+      title: "Execution-Phase Delivery Excellence",
+      desc: "Detailed design and sizing calculations through 3D CAD modelling, fabrication deliverables, and asset life extension."
     },
     {
       title: "Trusted by Global EPCs & OEMs",
@@ -45,6 +60,62 @@ export const ABOUT_DATA = {
     }
   ]
 };
+
+/**
+ * The three headline capability cards.
+ *
+ * The reference layout puts FEED, basic engineering and detailed engineering
+ * side by side here. ProSIM only carries the third of those, so the trio
+ * instead splits detailed engineering into the phases we actually deliver.
+ */
+export const PILLARS_DATA: PillarItem[] = [
+  {
+    id: "pillar-detailed-engineering",
+    title: "Detailed Engineering",
+    desc: "Discipline-wise deliverables that carry an approved design all the way to the fabrication floor: layouts, drawings, datasheets and MTOs.",
+    iconName: "Box"
+  },
+  {
+    id: "pillar-analysis",
+    title: "Advanced Engineering Analysis",
+    desc: "Physics-based FEA, CFD, piping stress and seismic qualification that prove the design holds up under real operating conditions.",
+    iconName: "Layers"
+  },
+  {
+    id: "pillar-integrity",
+    title: "Asset Integrity & Life Extension",
+    desc: "Fitness-for-service assessment, residual life evaluation and re-qualification for equipment already in service.",
+    iconName: "ShieldAlert"
+  }
+];
+
+/** Standards and accreditations shown in the credentials strip. */
+export const CREDENTIALS_DATA: CredentialItem[] = [
+  {
+    id: "cred-asme",
+    label: "ASME Sec III & VIII",
+    detail: "Nuclear and pressure-vessel code qualification",
+    iconName: "ShieldAlert"
+  },
+  {
+    id: "cred-rccm",
+    label: "RCC-M & AERB",
+    detail: "Nuclear island design and regulatory review",
+    iconName: "Atom"
+  },
+  {
+    id: "cred-api",
+    label: "API 579 / BS 7910",
+    detail: "Fitness-for-service and flaw assessment",
+    iconName: "Activity"
+  },
+  {
+    id: "cred-iso",
+    label: "ISO 9001 Practices",
+    detail: "Checked, peer-reviewed and traceable deliverables",
+    iconName: "Box"
+  }
+];
 
 export const STATS_DATA: StatItem[] = [
   {
@@ -99,7 +170,7 @@ export const INDUSTRIES_DATA: IndustryItem[] = [
     sampleProject: "Seismic and thermal fatigue qualification of 700 MWe PHWR primary coolant piping and calandria internals.",
     metrics: "120+ Nuclear Reactor Systems Qualified",
     iconName: "Atom",
-    image: "https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&w=800&q=80"
+    image: "/images/ind-nuclear.jpg"
   },
   {
     id: "thermal-energy",
@@ -118,7 +189,7 @@ export const INDUSTRIES_DATA: IndustryItem[] = [
     sampleProject: "Creep-fatigue interaction study and remaining life assessment for 660 MW supercritical power plant high-pressure steam headers.",
     metrics: "45+ GW Thermal Assets Evaluated",
     iconName: "Flame",
-    image: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=800&q=80"
+    image: "/images/ind-thermal.jpg"
   },
   {
     id: "oil-and-gas",
@@ -137,7 +208,7 @@ export const INDUSTRIES_DATA: IndustryItem[] = [
     sampleProject: "Subsea rigid jumper thermal expansion, vortex-induced vibration (VIV), and fatigue analysis in 1,200m deepwater.",
     metrics: "500+ Offshore & Pipeline Validations",
     iconName: "Droplets",
-    image: "https://images.unsplash.com/photo-1542382257-80dedb725088?auto=format&fit=crop&w=800&q=80"
+    image: "/images/ind-oil-gas.jpg"
   },
   {
     id: "petrochemical-engineering",
@@ -156,7 +227,7 @@ export const INDUSTRIES_DATA: IndustryItem[] = [
     sampleProject: "Level 3 Fitness-For-Service analysis of refinery hydrocracker reactor nozzle subject to hydrogen embrittlement and thermal cycles.",
     metrics: "250+ Pressure Vessels Certified",
     iconName: "Layers",
-    image: "https://images.unsplash.com/photo-1542382257-80dedb725088?auto=format&fit=crop&w=800&q=80"
+    image: "/images/ind-petrochemicals.jpg"
   },
   {
     id: "industrial-heavy-engineering",
@@ -175,7 +246,7 @@ export const INDUSTRIES_DATA: IndustryItem[] = [
     sampleProject: "Structural redesign and dynamic stress optimization of 120-ton ladle handling crane with 40% increased fatigue life.",
     metrics: "900+ Heavy Machinery Systems Engineered",
     iconName: "Cpu",
-    image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80"
+    image: "/images/ind-industrial.jpg"
   },
   {
     id: "power-and-utilities",
@@ -194,80 +265,151 @@ export const INDUSTRIES_DATA: IndustryItem[] = [
     sampleProject: "Seismic qualification (IEEE 693 High Performance Level) for 765 kV Gas Insulated Substation (GIS) modules.",
     metrics: "1200+ Utility Infrastructure Assessments",
     iconName: "Zap",
-    image: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=800&q=80"
+    image: "/images/ind-power-utilities.jpg"
   }
 ];
 
+/**
+ * Client roster, matching the customer wall in the company deck. Each entry
+ * carries the real mark under /public/logos, so the marquee shows logos rather
+ * than the monogram placeholders it used to render.
+ */
 export const CLIENTS_DATA: ClientItem[] = [
   {
     id: "npcil",
     name: "Nuclear Power Corporation of India",
     shortName: "NPCIL",
     sector: "Nuclear Energy",
-    description: "Primary nuclear power authority; partner for reactor core simulation, seismic evaluation & safety analysis."
+    description: "Primary nuclear power authority; partner for reactor core simulation, seismic evaluation & safety analysis.",
+    logo: "/logos/npcil.png"
   },
   {
-    id: "iocl",
-    name: "IndianOil",
-    shortName: "IOCL",
-    sector: "Refining & Oil",
-    description: "National downstream oil major; refinery piping stress, hydrocracker fitness-for-service, and column dynamics."
-  },
-  {
-    id: "ongc",
-    name: "Oil and Natural Gas Corporation",
-    shortName: "ONGC",
-    sector: "Upstream Exploration",
-    description: "Offshore exploration giant; topside structural integrity, subsea pipeline analysis, and riser dynamics."
-  },
-  {
-    id: "thermax",
-    name: "Thermax",
-    shortName: "Thermax",
-    sector: "Energy & Environment",
-    description: "Global boiler and energy systems OEM; boiler heat exchangers, CFD combustion, and emissions abatement."
-  },
-  {
-    id: "ngsl",
-    name: "NTPC-GE Power Services Ltd",
-    shortName: "NGSL",
-    sector: "Power Services & EPC",
-    description: "Joint venture leader for power plant renovation, turbine retrofits, and plant performance optimization."
+    id: "igcar",
+    name: "Indira Gandhi Centre for Atomic Research",
+    shortName: "IGCAR",
+    sector: "Nuclear Research",
+    description: "National atomic research centre; fast-reactor component analysis and high-temperature structural evaluation.",
+    logo: "/logos/igcar.png"
   },
   {
     id: "ntpc",
     name: "NTPC Limited",
     shortName: "NTPC",
     sector: "Power Generation",
-    description: "Largest power generation conglomerate; supercritical boiler remaining life assessment and piping studies."
+    description: "Largest power generation conglomerate; supercritical boiler remaining life assessment and piping studies.",
+    logo: "/logos/ntpc.png"
   },
   {
-    id: "reliance",
-    name: "Reliance Industries",
-    shortName: "Reliance",
-    sector: "Petrochemicals & Energy",
-    description: "Mega-scale refining and petrochemical complexes; equipment design-by-analysis and surge simulations."
+    id: "ngsl",
+    name: "NTPC-GE Power Services Ltd",
+    shortName: "NGSL",
+    sector: "Power Services & EPC",
+    description: "Joint venture leader for power plant renovation, turbine retrofits, and plant performance optimisation.",
+    logo: "/logos/ngsl.png"
+  },
+  {
+    id: "iocl",
+    name: "IndianOil",
+    shortName: "IndianOil",
+    sector: "Refining & Oil",
+    description: "National downstream oil major; refinery piping stress, hydrocracker fitness-for-service, and column dynamics.",
+    logo: "/logos/indianoil.png"
+  },
+  {
+    id: "petronet-lng",
+    name: "Petronet LNG Limited",
+    shortName: "Petronet LNG",
+    sector: "LNG & Cryogenics",
+    description: "LNG import and regasification operator; cryogenic piping flexibility, storage tank and jetty line engineering.",
+    logo: "/logos/petronet-lng.png"
+  },
+  {
+    id: "reliance-infrastructure",
+    name: "Reliance Infrastructure",
+    shortName: "Reliance Infrastructure",
+    sector: "Infrastructure & Power",
+    description: "Large-scale infrastructure and power developer; structural detailing and plant equipment verification.",
+    logo: "/logos/reliance-infrastructure.png"
+  },
+  {
+    id: "thermax",
+    name: "Thermax Limited",
+    shortName: "Thermax",
+    sector: "Energy & Environment",
+    description: "Global boiler and energy systems OEM; boiler heat exchangers, CFD combustion, and emissions abatement.",
+    logo: "/logos/thermax.png"
+  },
+  {
+    id: "isgec",
+    name: "ISGEC Heavy Engineering",
+    shortName: "ISGEC",
+    sector: "Heavy Engineering",
+    description: "Heavy manufacturing and process equipment OEM; press structures, high-capacity boilers & pressure vessels.",
+    logo: "/logos/isgec.png"
+  },
+  {
+    id: "kirloskar-oil-engines",
+    name: "Kirloskar Oil Engines",
+    shortName: "Kirloskar",
+    sector: "Engines & Machinery",
+    description: "Engine and power-solutions manufacturer; structural durability, vibration and thermal management studies.",
+    logo: "/logos/kirloskar-oil-engines.png"
   },
   {
     id: "veolia",
     name: "Veolia",
     shortName: "Veolia",
     sector: "Water & Waste Utilities",
-    description: "Global ecological utility company; water treatment hydraulic simulations, piping networks, and structural assets."
+    description: "Global ecological utility company; water treatment hydraulic simulations, piping networks, and structural assets.",
+    logo: "/logos/veolia.png"
   },
   {
     id: "lg-electronics",
     name: "LG Electronics",
     shortName: "LG Electronics",
     sector: "Industrial & Manufacturing",
-    description: "Advanced thermal management, structural reliability, and shock/vibration packaging optimization."
+    description: "Advanced thermal management, structural reliability, and shock/vibration packaging optimisation.",
+    logo: "/logos/lg-electronics.png"
   },
   {
-    id: "isgec",
-    name: "ISGEC Heavy Engineering",
-    shortName: "ISGEC",
-    sector: "Heavy Engineering & Boilers",
-    description: "Heavy manufacturing and process equipment OEM; heavy press structures, high-capacity boilers & pressure vessels."
+    id: "quest-global",
+    name: "Quest Global",
+    shortName: "Quest Global",
+    sector: "Engineering Services",
+    description: "Global engineering services partner; extended detailed-engineering and analysis capacity across sectors.",
+    logo: "/logos/quest-global.png"
+  },
+  {
+    id: "atlas-copco",
+    name: "Atlas Copco",
+    shortName: "Atlas Copco",
+    sector: "Industrial Equipment",
+    description: "Compressor and industrial equipment OEM; rotating machinery dynamics and package structural design.",
+    logo: "/logos/atlas-copco.png"
+  },
+  {
+    id: "assystem",
+    name: "Assystem",
+    shortName: "Assystem",
+    sector: "Nuclear Engineering",
+    description: "International nuclear engineering group; code-qualified component analysis and design verification support.",
+    logo: "/logos/assystem.png"
+  },
+  {
+    id: "powerica",
+    name: "Powerica Limited",
+    shortName: "Powerica",
+    sector: "Power Solutions",
+    description: "Power generation and distribution specialist; enclosure structures, foundations and vibration isolation.",
+    logo: "/logos/powerica.png"
+  },
+  {
+    id: "engage",
+    name: "Engage (ITER Infrastructure)",
+    shortName: "Engage",
+    sector: "Fusion Research",
+    description: "ITER infrastructure consortium; large-scale structural analysis for fusion research facility systems.",
+    logo: "/logos/engage.png"
   }
 ];
 
@@ -472,7 +614,7 @@ export const TIMELINE_OPTIONS: string[] = [
   'Immediate (< 1 Month)',
   '1 – 3 Months',
   '3 – 6 Months',
-  'Budgetary / Future FEED Phase',
+  'Budgetary / Future Execution Phase',
 ];
 
 /** Filter pills for the case-study grid, built from the projects themselves. */

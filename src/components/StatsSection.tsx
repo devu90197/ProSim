@@ -4,7 +4,8 @@ import type { LucideIcon } from 'lucide-react';
 import { STATS_DATA } from '../data/prosimData';
 import { TiltCard } from './TiltCard';
 import { CountUp } from './ui/CountUp';
-import { Reveal, Stagger, StaggerItem } from './ui/Reveal';
+import { Stagger, StaggerItem } from './ui/Reveal';
+import { SectionHeading } from './ui/SectionHeading';
 
 /** Per-stat presentation, keyed by the stat's id in the data layer. */
 const STAT_STYLE: Record<string, { icon: LucideIcon; tone: string; glow: 'cyan' | 'indigo' | 'emerald' | 'amber' }> = {
@@ -24,22 +25,13 @@ export const StatsSection: React.FC = () => (
     <div className="animate-float-slow pointer-events-none absolute left-1/4 top-1/2 h-72 w-72 -translate-y-1/2 rounded-full bg-cyan-400/10 blur-[100px]" />
     <div className="animate-float-slow pointer-events-none absolute right-1/4 top-1/2 h-72 w-72 -translate-y-1/2 rounded-full bg-teal-400/10 blur-[100px]" />
 
-    <Reveal className="mx-auto mb-12 max-w-3xl space-y-3 text-center sm:mb-16">
-      <div className="inline-flex items-center gap-2 rounded-full border border-cyan-200 bg-cyan-50 px-3.5 py-1 font-mono text-xs font-bold uppercase tracking-wider text-cyan-800 shadow-xs">
-        <TrendingUp className="h-3.5 w-3.5" aria-hidden />
-        <span>Proven Quantitative Track Record</span>
-      </div>
-      <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
-        Measurable Milestones of{' '}
-        <span className="bg-gradient-to-r from-cyan-600 to-teal-600 bg-clip-text text-transparent">
-          Engineering Trust
-        </span>
-      </h2>
-      <p className="text-sm text-slate-600 sm:text-base">
-        Decades of delivering rigorous physics-based simulation, structural integrity evaluations,
-        and code-certified plant engineering.
-      </p>
-    </Reveal>
+    <SectionHeading
+      align="center"
+      className="mb-12 sm:mb-16"
+      eyebrow="Track Record"
+      title="Measurable Milestones of Engineering Trust"
+      subtitle="Two and a half decades of physics-based simulation, structural integrity assessment and code-certified plant engineering — counted in delivered projects, not promises."
+    />
 
     <Stagger
       className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"

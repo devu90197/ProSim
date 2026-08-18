@@ -73,14 +73,21 @@ const WORKFLOW_STEPS = [
   },
 ] as const;
 
+/**
+ * Engagement scope.
+ *
+ * Every entry sits downstream of design approval. ProSIM does not offer
+ * front-end or basic engineering, so no concept, FEED or feasibility scope
+ * appears in this list.
+ */
 const DOMAINS = [
-  {
-    title: 'Conceptual & FEED Engineering',
-    desc: 'Thermal sizing, flow routing, material selection & preliminary seismic envelope definition.',
-  },
   {
     title: 'Detailed Engineering & 3D CAD',
     desc: 'Fabrication drawings, piping isometrics, equipment GA drawings, structural steel design.',
+  },
+  {
+    title: 'Discipline Deliverables & MTOs',
+    desc: 'Datasheets, layouts, support design, bills of material and issue-for-construction packages.',
   },
   {
     title: 'Advanced Physics-Based Analysis',
@@ -117,16 +124,19 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ onOpenConsultation }
               <span>About ProSIM</span>
             </div>
 
-            <h2 className="text-3xl font-extrabold leading-tight tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
-              Pioneering Multi-Discipline <br className="hidden sm:inline" />
-              <span className="bg-gradient-to-r from-cyan-600 via-teal-600 to-sky-600 bg-clip-text text-transparent">
-                Engineering &amp; Analysis
-              </span>
+            <h2 className="text-3xl font-extrabold leading-tight tracking-tight text-brand-900 sm:text-4xl lg:text-5xl">
+              {ABOUT_DATA.tagline}
             </h2>
+
+            <span aria-hidden className="rule-accent" />
 
             <div className="gradient-border relative rounded-3xl border border-slate-200 bg-white/85 p-6 shadow-[0_10px_35px_rgba(15,23,42,0.06)] backdrop-blur-2xl sm:p-8">
               <p className="text-base font-normal leading-relaxed text-slate-800 sm:text-lg">
                 {ABOUT_DATA.statement}
+              </p>
+
+              <p className="mt-4 text-sm font-normal leading-relaxed text-slate-600 sm:text-base">
+                {ABOUT_DATA.statementSecondary}
               </p>
 
               <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-slate-100 pt-6">
@@ -222,8 +232,8 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ onOpenConsultation }
                       Comprehensive Engagement Spectrum
                     </h3>
                     <p className="text-xs leading-relaxed text-slate-600">
-                      Working hand-in-hand with EPC contractors and technology OEMs across the
-                      complete project lifecycle:
+                      Working hand-in-hand with EPC contractors and technology OEMs from detailed
+                      design through to analysis and in-service support:
                     </p>
 
                     <div className="space-y-2.5">

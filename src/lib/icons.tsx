@@ -44,25 +44,31 @@ const ICON_REGISTRY: Record<string, LucideIcon> = {
   Zap,
 };
 
-/** Tailwind text colour per icon, so accent hues stay consistent site-wide. */
+/**
+ * Tailwind text colour per icon.
+ *
+ * The brand runs a single blue family rather than one hue per topic, so these
+ * only vary in depth. Mixing amber, indigo and emerald in here previously
+ * pulled the cards away from the palette every time an icon changed.
+ */
 const ICON_TONE: Record<string, string> = {
-  Atom: 'text-cyan-600',
-  Flame: 'text-amber-600',
-  Droplets: 'text-sky-600',
-  Layers: 'text-teal-600',
-  Cpu: 'text-indigo-600',
-  Zap: 'text-emerald-600',
-  Wind: 'text-teal-600',
-  Activity: 'text-sky-600',
-  Box: 'text-indigo-600',
-  ShieldAlert: 'text-amber-600',
-  Sparkles: 'text-cyan-600',
+  Atom: 'text-brand-600',
+  Flame: 'text-brand-500',
+  Droplets: 'text-brand-500',
+  Layers: 'text-brand-600',
+  Cpu: 'text-brand-700',
+  Zap: 'text-brand-500',
+  Wind: 'text-brand-600',
+  Activity: 'text-brand-500',
+  Box: 'text-brand-700',
+  ShieldAlert: 'text-brand-600',
+  Sparkles: 'text-brand-500',
 };
 
 export const getIconComponent = (name: string): LucideIcon =>
   ICON_REGISTRY[name] ?? Activity;
 
-export const getIconTone = (name: string): string => ICON_TONE[name] ?? 'text-cyan-600';
+export const getIconTone = (name: string): string => ICON_TONE[name] ?? 'text-brand-600';
 
 interface DataIconProps {
   name: string;

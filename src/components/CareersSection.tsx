@@ -1,10 +1,11 @@
 import React from 'react';
 import { motion, useReducedMotion } from 'motion/react';
-import { ArrowRight, CheckCircle2, Clock, MapPin, Sparkles, Users } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Clock, MapPin, Sparkles } from 'lucide-react';
 import { CAREERS_DATA } from '../data/prosimData';
 import type { JobOpening } from '../types';
 import { MagneticButton } from './ui/MagneticButton';
-import { Reveal, Stagger, StaggerItem } from './ui/Reveal';
+import { Stagger, StaggerItem } from './ui/Reveal';
+import { SectionHeading } from './ui/SectionHeading';
 
 interface CareersSectionProps {
   onApplyJob: (job: JobOpening) => void;
@@ -35,22 +36,13 @@ export const CareersSection: React.FC<CareersSectionProps> = ({ onApplyJob }) =>
     >
       <div className="animate-float-slow pointer-events-none absolute left-1/4 top-1/4 h-80 w-80 rounded-full bg-teal-400/10 blur-[140px]" />
 
-      <Reveal className="mx-auto mb-12 max-w-3xl space-y-3 text-center sm:mb-16">
-        <div className="inline-flex items-center gap-2 rounded-full border border-cyan-200 bg-cyan-50 px-3.5 py-1 font-mono text-xs font-bold uppercase tracking-wider text-cyan-800 shadow-xs">
-          <Users className="h-3.5 w-3.5 text-cyan-600" aria-hidden />
-          <span>Join Our Specialist Engineering Team</span>
-        </div>
-        <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
-          Careers at{' '}
-          <span className="bg-gradient-to-r from-cyan-600 via-teal-600 to-sky-600 bg-clip-text text-transparent">
-            ProSIM
-          </span>
-        </h2>
-        <p className="text-sm text-slate-600 sm:text-base">
-          Work at the forefront of nuclear physics, supercritical energy systems, offshore
-          engineering, and advanced computational mechanics.
-        </p>
-      </Reveal>
+      <SectionHeading
+        align="center"
+        className="mb-12 sm:mb-16"
+        eyebrow="Careers at ProSIM"
+        title="Brilliant minds live here."
+        subtitle="Design the future with us. We turn demanding engineering problems into assets that run safely for decades — join the team and engineer progress you can point at."
+      />
 
       <Stagger className="mb-10 grid grid-cols-1 gap-5 md:grid-cols-3" stagger={0.1}>
         {CULTURE_POINTS.map((item) => (

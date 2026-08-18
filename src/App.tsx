@@ -9,9 +9,11 @@ import { Hero } from './components/Hero';
 import { ClientsMarquee } from './components/ClientsMarquee';
 import { StatsSection } from './components/StatsSection';
 import { AboutSection } from './components/AboutSection';
+import { PillarsSection } from './components/PillarsSection';
 import { IndustriesSection } from './components/IndustriesSection';
 import { ServicesSection } from './components/ServicesSection';
 import { ProjectsSection } from './components/ProjectsSection';
+import { CredentialsStrip } from './components/CredentialsStrip';
 import { CareersSection } from './components/CareersSection';
 import { ContactSection } from './components/ContactSection';
 import { Footer } from './components/Footer';
@@ -50,12 +52,14 @@ export default function App() {
         <ClientsMarquee />
         <StatsSection />
         <AboutSection onOpenConsultation={openConsultation} />
+        <PillarsSection onOpenConsultation={openConsultation} />
         <IndustriesSection
           onSelectIndustry={setSelectedIndustry}
           onOpenConsultation={openConsultation}
         />
         <ServicesSection onOpenConsultation={openConsultation} />
         <ProjectsSection />
+        <CredentialsStrip />
         <CareersSection onApplyJob={setSelectedJob} />
         <ContactSection />
       </main>

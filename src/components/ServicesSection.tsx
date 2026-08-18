@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { ArrowRight, CheckCircle2, Wrench } from 'lucide-react';
+import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import { SERVICES_DATA } from '../data/prosimData';
 import { TiltCard } from './TiltCard';
 import { DataIcon } from '../lib/icons';
 import { MagneticButton } from './ui/MagneticButton';
 import { Reveal, Stagger, StaggerItem } from './ui/Reveal';
+import { SectionHeading } from './ui/SectionHeading';
 
 interface ServicesSectionProps {
   onOpenConsultation: () => void;
@@ -24,22 +25,13 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({ onOpenConsulta
     >
       <div className="animate-float-slow pointer-events-none absolute left-1/3 top-1/3 h-80 w-80 rounded-full bg-cyan-400/10 blur-[130px]" />
 
-      <Reveal className="mx-auto mb-12 max-w-3xl space-y-3 text-center sm:mb-16">
-        <div className="inline-flex items-center gap-2 rounded-full border border-cyan-200 bg-cyan-50 px-3.5 py-1 font-mono text-xs font-bold uppercase tracking-wider text-cyan-800 shadow-xs">
-          <Wrench className="h-3.5 w-3.5 text-cyan-600" aria-hidden />
-          <span>Core Engineering Disciplines</span>
-        </div>
-        <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
-          Multi-Disciplinary{' '}
-          <span className="bg-gradient-to-r from-cyan-600 via-teal-600 to-sky-600 bg-clip-text text-transparent">
-            Engineering Services
-          </span>
-        </h2>
-        <p className="text-sm text-slate-600 sm:text-base">
-          From high-order finite element analysis to multiphase fluid mechanics and as-built 3D
-          plant laser engineering.
-        </p>
-      </Reveal>
+      <SectionHeading
+        align="center"
+        className="mb-12 sm:mb-16"
+        eyebrow="Core Disciplines"
+        title="Multi-Disciplinary Engineering Services"
+        subtitle="From high-order finite element analysis and multiphase fluid mechanics through to piping stress, plant modelling and as-built laser-scan conversion."
+      />
 
       <Stagger
         className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 sm:gap-7"
