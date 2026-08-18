@@ -10,11 +10,11 @@ interface NavbarProps {
 
 const NAV_LINKS = [
   { name: 'Home', id: 'home' },
+  { name: 'Clients', id: 'clients' },
   { name: 'About Us', id: 'about' },
   { name: 'Industries', id: 'industries' },
   { name: 'Services', id: 'services' },
   { name: 'Projects', id: 'projects' },
-  { name: 'Clients', id: 'clients' },
   { name: 'Careers', id: 'careers' },
   { name: 'Contact', id: 'contact' },
 ] as const;
@@ -133,15 +133,20 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenConsultation }) => {
         Skip to main content
       </a>
 
+      {/*
+       * The bar is permanently fixed and never retracts — it only changes
+       * appearance, going from transparent over the hero video to a compact
+       * solid-white bar once the page is scrolled. The `y` animation below
+       * runs once on mount to drop it into place.
+       */}
       <motion.div
         initial={{ y: -80, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-        className={`w-full transition-all duration-300 ${
-          isScrolled
-            ? 'border-b border-slate-200/80 bg-white/95 py-2.5 shadow-md backdrop-blur-xl'
-            : 'border-b border-white/10 bg-slate-950/20 py-3 backdrop-blur-sm sm:py-3.5'
-        }`}
+        transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
+        className={`w-full transition-[background-color,padding,box-shadow,border-color] duration-300 ${isScrolled
+          ? 'border-b border-slate-200/80 bg-white/95 py-2 shadow-lg shadow-brand-950/5 backdrop-blur-xl'
+          : 'border-b border-transparent bg-transparent py-4 sm:py-5'
+          }`}
       >
         <div className="page-shell ">
           <div className="flex items-center justify-between">
@@ -163,11 +168,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenConsultation }) => {
             {/* Desktop nav */}
             <nav
               aria-label="Primary"
-              className={`hidden items-center gap-1 rounded-full border px-2.5 py-1.5 transition-all lg:flex ${
-                isScrolled
-                  ? 'border-slate-200 bg-slate-100/90'
-                  : 'border-transparent bg-transparent'
-              }`}
+              className={`hidden items-center gap-1 rounded-full border px-2.5 py-1.5 transition-all lg:flex ${isScrolled
+                ? 'border-slate-200 bg-slate-100/90'
+                : 'border-transparent bg-transparent'
+                }`}
             >
               {NAV_LINKS.map((link) => {
                 const isActive = activeSection === link.id;
@@ -180,15 +184,14 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenConsultation }) => {
                       goToSection(link.id);
                     }}
                     aria-current={isActive ? 'page' : undefined}
-                    className={`relative whitespace-nowrap rounded-full px-3.5 py-1 text-xs font-semibold transition-colors duration-200 ${
-                      isActive
-                        ? isScrolled
-                          ? 'text-cyan-700'
-                          : 'text-cyan-300'
-                        : isScrolled
-                          ? 'text-slate-600 hover:text-slate-900'
-                          : 'text-slate-200 hover:text-white'
-                    }`}
+                    className={`relative whitespace-nowrap rounded-full px-3.5 py-1 text-xs font-semibold transition-colors duration-200 ${isActive
+                      ? isScrolled
+                        ? 'text-cyan-700'
+                        : 'text-cyan-300'
+                      : isScrolled
+                        ? 'text-slate-600 hover:text-slate-900'
+                        : 'text-slate-200 hover:text-white'
+                      }`}
                   >
                     {/* The pill physically slides between links rather than
                         popping in and out on each one. */}
@@ -196,11 +199,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenConsultation }) => {
                       <motion.span
                         layoutId="nav-active-pill"
                         transition={{ type: 'spring', stiffness: 380, damping: 32 }}
-                        className={`absolute inset-0 rounded-full border ${
-                          isScrolled
-                            ? 'border-slate-200 bg-white shadow-sm'
-                            : 'border-cyan-400/40 bg-cyan-500/25'
-                        }`}
+                        className={`absolute inset-0 rounded-full border ${isScrolled
+                          ? 'border-slate-200 bg-white shadow-sm'
+                          : 'border-cyan-400/40 bg-cyan-500/25'
+                          }`}
                       />
                     )}
                     <span className="relative z-10">{link.name}</span>
@@ -226,11 +228,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenConsultation }) => {
                 id="mobile-menu-toggle"
                 type="button"
                 onClick={() => setMobileMenuOpen((open) => !open)}
-                className={`rounded-xl border p-2 transition-colors lg:hidden ${
-                  isScrolled
-                    ? 'border-slate-200 bg-slate-100 text-slate-800'
-                    : 'border-white/20 bg-slate-900/60 text-white'
-                }`}
+                className={`rounded-xl border p-2 transition-colors lg:hidden ${isScrolled
+                  ? 'border-slate-200 bg-slate-100 text-slate-800'
+                  : 'border-white/20 bg-slate-900/60 text-white'
+                  }`}
                 aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
                 aria-expanded={mobileMenuOpen}
                 aria-controls="mobile-nav-drawer"
@@ -273,11 +274,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenConsultation }) => {
                     goToSection(link.id);
                   }}
                   aria-current={activeSection === link.id ? 'page' : undefined}
-                  className={`flex items-center justify-between rounded-xl border px-3 py-2.5 text-xs font-semibold transition-colors ${
-                    activeSection === link.id
-                      ? 'border-cyan-400/40 bg-cyan-500/15 text-cyan-300'
-                      : 'border-slate-700/80 bg-slate-800/80 text-slate-200 hover:bg-slate-800 hover:text-cyan-300'
-                  }`}
+                  className={`flex items-center justify-between rounded-xl border px-3 py-2.5 text-xs font-semibold transition-colors ${activeSection === link.id
+                    ? 'border-cyan-400/40 bg-cyan-500/15 text-cyan-300'
+                    : 'border-slate-700/80 bg-slate-800/80 text-slate-200 hover:bg-slate-800 hover:text-cyan-300'
+                    }`}
                 >
                   <span>{link.name}</span>
                   <ArrowRight className="h-3 w-3 opacity-40" />

@@ -4,12 +4,92 @@
  * Design tokens
  * ------------------------------------------------------------------ */
 @theme {
-  --color-brand-50: #ecfeff;
-  --color-brand-100: #cffafe;
-  --color-brand-400: #22d3ee;
-  --color-brand-500: #06b6d4;
-  --color-brand-600: #0891b2;
-  --color-brand-700: #0e7490;
+  /* ----------------------------------------------------------------
+   * Brand ramp — corporate engineering navy/blue.
+   *
+   * The whole UI was originally built on Tailwind's `cyan-*` / `teal-*`
+   * utilities. Rather than rewriting several thousand class names, those two
+   * ramps are redefined here onto the brand's navy-to-azure scale, so every
+   * existing `text-cyan-700`, `from-teal-500`, `border-cyan-200` etc. retunes
+   * to the brand in one place. `--color-brand-*` mirrors the same values for
+   * new code.
+   * ---------------------------------------------------------------- */
+  /* Blue ramp anchored on the logo's tagline ink, #0A5DB4 (= brand-600). */
+  --color-brand-50: #eff6fd;
+  --color-brand-100: #d8eafb;
+  --color-brand-200: #b4d4f6;
+  --color-brand-300: #7cb6ee;
+  --color-brand-400: #3d90e0;
+  --color-brand-500: #1470ca;
+  --color-brand-600: #0a5db4;
+  --color-brand-700: #094a91;
+  --color-brand-800: #0a3c74;
+  --color-brand-900: #0a2d56;
+  --color-brand-950: #06182f;
+
+  /*
+   * Accent ramp taken from the green of "SIM" in the wordmark, #00B050
+   * (= accent-500). Used for the section rules, confirmations and active
+   * states so the palette visibly resolves to the logo rather than running a
+   * blue that happens to sit near it.
+   */
+  --color-accent-50: #e8faf0;
+  --color-accent-100: #c6f2d9;
+  --color-accent-200: #8fe6b5;
+  --color-accent-300: #4fd484;
+  --color-accent-400: #1fc466;
+  --color-accent-500: #00b050;
+  --color-accent-600: #009644;
+  --color-accent-700: #007a37;
+  --color-accent-800: #06602d;
+  --color-accent-900: #064c25;
+
+  /* The orange of the lockup's gradient bar, for sparing highlight use. */
+  --color-signal-400: #f5a04a;
+  --color-signal-500: #f08010;
+  --color-signal-600: #d76f0a;
+
+  /* Primary ramp (was cyan) — mirrors the brand blue above */
+  --color-cyan-50: #eff6fd;
+  --color-cyan-100: #d8eafb;
+  --color-cyan-200: #b4d4f6;
+  --color-cyan-300: #7cb6ee;
+  --color-cyan-400: #3d90e0;
+  --color-cyan-500: #1470ca;
+  --color-cyan-600: #0a5db4;
+  --color-cyan-700: #094a91;
+  --color-cyan-800: #0a3c74;
+  --color-cyan-900: #0a2d56;
+  --color-cyan-950: #06182f;
+
+  /*
+   * Secondary ramp (was teal) — mapped onto the logo green, so the many
+   * existing `teal-*` ticks, badges and gradient stops now carry the accent
+   * from the wordmark instead of a second, unrelated blue.
+   */
+  --color-teal-50: #e8faf0;
+  --color-teal-100: #c6f2d9;
+  --color-teal-200: #8fe6b5;
+  --color-teal-300: #4fd484;
+  --color-teal-400: #1fc466;
+  --color-teal-500: #00b050;
+  --color-teal-600: #009644;
+  --color-teal-700: #007a37;
+  --color-teal-800: #06602d;
+  --color-teal-900: #064c25;
+  --color-teal-950: #043318;
+
+  /* Tertiary ramp (was sky/emerald accents) pulled into the same family */
+  --color-sky-400: #4aa5f2;
+  --color-sky-500: #2081dd;
+  --color-sky-600: #1566b6;
+  --color-sky-700: #104f8f;
+  --color-emerald-300: #9cc9f7;
+  --color-emerald-400: #4aa5f2;
+  --color-emerald-500: #2081dd;
+  --color-emerald-600: #1566b6;
+  --color-emerald-700: #104f8f;
+  --color-emerald-950: #07182f;
 
   /* Height of the fixed header, used for anchor scroll offset. */
   --nav-height: 4.5rem;
@@ -27,8 +107,8 @@
   }
 
   body {
-    background-color: #f8fafc;
-    color: #0f172a;
+    background-color: #f5f8fc;
+    color: #0a2a52;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
       Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     overflow-x: hidden;
@@ -74,6 +154,65 @@
 
 @media (min-width: 1920px) {
   .page-shell { max-width: 102rem; }
+}
+
+/* ------------------------------------------------------------------ *
+ * Section furniture
+ *
+ * The deck leads every headline with a short gradient rule sitting directly
+ * under it. `.rule-accent` reproduces that mark so each section opens the
+ * same way instead of every component inventing its own divider.
+ * ------------------------------------------------------------------ */
+.rule-accent {
+  display: block;
+  width: 5rem;
+  height: 3px;
+  border-radius: 999px;
+  /* Blue into green, the two inks of the wordmark. */
+  background: linear-gradient(90deg, #0a5db4 0%, #1470ca 45%, #00b050 100%);
+}
+
+.rule-accent-on-dark {
+  background: linear-gradient(90deg, #7cb6ee 0%, #1fc466 100%);
+}
+
+/* ------------------------------------------------------------------ *
+ * Industry card
+ *
+ * The deck renders each industry as a photo inside a slightly sheared frame
+ * with a lit edge. The shear is applied to the frame only — an inner
+ * counter-transform keeps the photograph and its caption upright, so the
+ * geometry reads as a tilted pane of glass rather than skewed artwork.
+ * ------------------------------------------------------------------ */
+.industry-frame {
+  position: relative;
+  border-radius: 0.75rem;
+  background:
+    linear-gradient(160deg, rgba(46, 155, 255, 0.9), rgba(46, 155, 255, 0.15) 45%, rgba(46, 155, 255, 0.75));
+  padding: 1.5px;
+  transform: perspective(1400px) rotateY(-2.5deg);
+  transition: transform 0.5s var(--ease-out-expo), box-shadow 0.5s var(--ease-out-expo);
+  box-shadow: 0 18px 45px -22px rgba(8, 44, 88, 0.55);
+}
+
+.group\/ind:hover .industry-frame {
+  transform: perspective(1400px) rotateY(0deg) translateY(-6px);
+  box-shadow: 0 28px 60px -24px rgba(24, 119, 210, 0.6);
+}
+
+.industry-frame > * {
+  border-radius: calc(0.75rem - 1.5px);
+}
+
+/* Caption scrim so white type stays readable over any photograph. */
+.industry-scrim {
+  background: linear-gradient(
+    to top,
+    rgba(6, 24, 47, 0.96) 0%,
+    rgba(6, 24, 47, 0.82) 28%,
+    rgba(6, 24, 47, 0.15) 62%,
+    rgba(6, 24, 47, 0.05) 100%
+  );
 }
 
 /* ------------------------------------------------------------------ *

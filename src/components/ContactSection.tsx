@@ -14,6 +14,7 @@ import { SECTOR_OPTIONS, SERVICE_OPTIONS, TIMELINE_OPTIONS } from '../data/prosi
 import { MagneticButton } from './ui/MagneticButton';
 import { FIELD_CLASS, LABEL_CLASS, SUBMIT_CLASS } from './ui/formStyles';
 import { Reveal } from './ui/Reveal';
+import { SectionHeading } from './ui/SectionHeading';
 
 /** Matches the limit advertised in the upload control's helper text. */
 const MAX_UPLOAD_BYTES = 50 * 1024 * 1024;
@@ -113,22 +114,13 @@ export const ContactSection: React.FC = () => {
       <div className="animate-float-slow pointer-events-none absolute bottom-10 right-10 h-96 w-96 rounded-full bg-cyan-400/10 blur-[150px]" />
       <div className="animate-float-slow pointer-events-none absolute left-10 top-10 h-96 w-96 rounded-full bg-teal-400/10 blur-[150px]" />
 
-      <Reveal className="mx-auto mb-12 max-w-3xl space-y-3 text-center sm:mb-16">
-        <div className="inline-flex items-center gap-2 rounded-full border border-cyan-200 bg-cyan-50 px-3.5 py-1 font-mono text-xs font-bold uppercase tracking-wider text-cyan-800 shadow-xs">
-          <Mail className="h-3.5 w-3.5 text-cyan-600" aria-hidden />
-          <span>Connect with Our Technical Specialists</span>
-        </div>
-        <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
-          Initiate an{' '}
-          <span className="bg-gradient-to-r from-cyan-600 via-teal-600 to-sky-600 bg-clip-text text-transparent">
-            Engineering Inquiry
-          </span>
-        </h2>
-        <p className="text-sm text-slate-600 sm:text-base">
-          Reach out for project sizing, finite element simulation bids, seismic qualification
-          studies, or multidisciplinary plant design.
-        </p>
-      </Reveal>
+      <SectionHeading
+        align="center"
+        className="mb-12 sm:mb-16"
+        eyebrow="Talk to Our Engineers"
+        title="Looking for a Reliable Detailed Engineering Partner?"
+        subtitle="We're ready to collaborate. Tell us what you're building and we'll come back with scope, deliverables and a realistic timeline — whether that's a single simulation, a seismic qualification study or a full multidisciplinary design package."
+      />
 
       <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
         {/* Contact coordinates */}
@@ -270,7 +262,7 @@ export const ContactSection: React.FC = () => {
                     Request Technical Consultation / RFP
                   </h3>
                   <p className="text-xs text-slate-500">
-                    Fill in the project scope below to receive a feasibility and cost assessment.
+                    Fill in the project scope below to receive a deliverables and cost assessment.
                   </p>
                 </div>
 

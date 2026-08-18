@@ -1,9 +1,10 @@
 import React, { useMemo, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { Award, CheckCircle2, FolderGit2 } from 'lucide-react';
+import { Award, CheckCircle2 } from 'lucide-react';
 import { PROJECTS_DATA, PROJECT_FILTERS } from '../data/prosimData';
 import { TiltCard } from './TiltCard';
 import { Reveal } from './ui/Reveal';
+import { SectionHeading } from './ui/SectionHeading';
 import { EASE_OUT_EXPO } from '../lib/motion';
 
 export const ProjectsSection: React.FC = () => {
@@ -26,22 +27,11 @@ export const ProjectsSection: React.FC = () => {
       <div className="animate-float-slow pointer-events-none absolute right-1/4 top-1/2 h-80 w-80 rounded-full bg-cyan-400/10 blur-[130px]" />
 
       <div className="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-end">
-        <Reveal className="max-w-2xl space-y-3" direction="right">
-          <div className="inline-flex items-center gap-2 rounded-full border border-cyan-200 bg-cyan-50 px-3.5 py-1 font-mono text-xs font-bold uppercase tracking-wider text-cyan-800 shadow-xs">
-            <FolderGit2 className="h-3.5 w-3.5 text-cyan-600" aria-hidden />
-            <span>Mission-Critical Case Studies</span>
-          </div>
-          <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
-            Proven Delivery{' '}
-            <span className="bg-gradient-to-r from-cyan-600 via-teal-600 to-sky-600 bg-clip-text text-transparent">
-              Excellence
-            </span>
-          </h2>
-          <p className="text-sm text-slate-600 sm:text-base">
-            Selected engineering design, multi-physics simulations, and regulatory code
-            qualifications delivered by ProSIM.
-          </p>
-        </Reveal>
+        <SectionHeading
+          eyebrow="Case Studies"
+          title="See Our Solutions in Action"
+          subtitle="A selection of detailed engineering packages, multi-physics simulations and code qualifications ProSIM has taken from brief to signed-off deliverable."
+        />
 
         {/* Filters are derived from the case studies themselves, so a pill can
             never point at an industry with no projects behind it. */}

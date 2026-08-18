@@ -37,6 +37,27 @@ export interface ClientItem {
   shortName: string;
   sector: string;
   description: string;
+  /** Path to the client's mark under /public/logos. */
+  logo: string;
+}
+
+/**
+ * One of the three headline capability cards. ProSIM's remit starts at
+ * detailed engineering, so these deliberately describe execution-phase work
+ * rather than any front-end or basic-engineering scope.
+ */
+export interface PillarItem {
+  id: string;
+  title: string;
+  desc: string;
+  iconName: string;
+}
+
+export interface CredentialItem {
+  id: string;
+  label: string;
+  detail: string;
+  iconName: string;
 }
 
 export interface ProjectCaseStudy {
