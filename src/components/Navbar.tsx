@@ -3,6 +3,7 @@ import { AnimatePresence, motion, useScroll, useSpring } from 'motion/react';
 import { ArrowRight, Menu, PhoneCall, Sparkles, X } from 'lucide-react';
 import { MagneticButton } from './ui/MagneticButton';
 import { Logo } from './ui/Logo';
+import { SearchBox } from './ui/SearchBox';
 
 interface NavbarProps {
   onOpenConsultation: () => void;
@@ -213,6 +214,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenConsultation }) => {
 
             {/* Actions */}
             <div className="flex items-center gap-2 sm:gap-3">
+              <SearchBox />
+
               <MagneticButton
                 id="nav-consultation-btn"
                 type="button"
@@ -250,55 +253,80 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenConsultation }) => {
         />
       </motion.div>
 
-      {/* Mobile drawer */}
+      {/* Mobile Drawer Overlay & Sidebar */}
       <AnimatePresence>
         {mobileMenuOpen && (
-          <motion.div
-            id="mobile-nav-drawer"
-            initial={{ opacity: 0, y: -16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -16 }}
-            transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
-            className="absolute inset-x-0 top-full space-y-3 border-b border-slate-800 bg-slate-900/95 p-5 shadow-2xl backdrop-blur-2xl lg:hidden"
-          >
-            <nav aria-label="Mobile" className="grid grid-cols-2 gap-2">
-              {NAV_LINKS.map((link, idx) => (
-                <motion.a
-                  key={link.id}
-                  href={`#${link.id}`}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.035, duration: 0.3 }}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    goToSection(link.id);
-                  }}
-                  aria-current={activeSection === link.id ? 'page' : undefined}
-                  className={`flex items-center justify-between rounded-xl border px-3 py-2.5 text-xs font-semibold transition-colors ${activeSection === link.id
-                    ? 'border-cyan-400/40 bg-cyan-500/15 text-cyan-300'
-                    : 'border-slate-700/80 bg-slate-800/80 text-slate-200 hover:bg-slate-800 hover:text-cyan-300'
-                    }`}
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setMobileMenuOpen(false)}
+              className="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm lg:hidden"
+            />
+            
+            {/* Drawer */}
+            <motion.div
+              id="mobile-nav-drawer"
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              className="fixed inset-y-0 right-0 z-50 flex w-4/5 max-w-sm flex-col bg-slate-900/90 shadow-2xl backdrop-blur-xl lg:hidden border-l border-slate-800"
+            >
+              <div className="flex items-center justify-between border-b border-slate-800 p-4 sm:p-5">
+                <span className="text-sm font-bold tracking-wide text-white">Menu</span>
+                <button
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="rounded-full p-2 text-slate-400 hover:bg-slate-800 hover:text-white"
+                  aria-label="Close menu"
                 >
-                  <span>{link.name}</span>
-                  <ArrowRight className="h-3 w-3 opacity-40" />
-                </motion.a>
-              ))}
-            </nav>
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
 
-            <div className="border-t border-slate-800 pt-3">
-              <button
-                type="button"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  onOpenConsultation();
-                }}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 py-3 text-xs font-bold text-white shadow-lg"
-              >
-                <Sparkles className="h-3.5 w-3.5" />
-                <span>Request Consultation</span>
-              </button>
-            </div>
-          </motion.div>
+              <div className="flex-1 overflow-y-auto p-4 sm:p-5">
+                <nav aria-label="Mobile" className="flex flex-col gap-2">
+                  {NAV_LINKS.map((link, idx) => (
+                    <motion.a
+                      key={link.id}
+                      href={`#${link.id}`}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: idx * 0.05, duration: 0.3 }}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        goToSection(link.id);
+                      }}
+                      aria-current={activeSection === link.id ? 'page' : undefined}
+                      className={`flex items-center justify-between rounded-xl border px-4 py-3 text-sm font-semibold transition-colors ${activeSection === link.id
+                        ? 'border-cyan-400/40 bg-cyan-500/15 text-cyan-300'
+                        : 'border-transparent text-slate-300 hover:bg-slate-800 hover:text-white'
+                        }`}
+                    >
+                      <span>{link.name}</span>
+                      <ArrowRight className="h-4 w-4 opacity-40" />
+                    </motion.a>
+                  ))}
+                </nav>
+              </div>
+
+              <div className="border-t border-slate-800 p-4 sm:p-5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    onOpenConsultation();
+                  }}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 py-3.5 text-sm font-bold text-white shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  <span>Request Consultation</span>
+                </button>
+              </div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </header>
