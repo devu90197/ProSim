@@ -13,7 +13,7 @@ export const HERO_DATA = {
   eyebrow: "ProSIM / Detailed Engineering & Analysis",
   headline: "Engineering through",
   headlineAccent: "Delivery Excellence",
-  subheadline: "Delivering innovative engineering solutions across energy sectors, helping customers solve their most pressing challenges through delivery excellence.",
+  subheadline: "Delivering innovative engineering solutions across energy sectors, helping customers solve their most pressing challenges through delivery excellence",
   videoCta: "Unveiling ProSIM",
   primaryCta: "Explore Industries",
   secondaryCta: "Request Engineering Consultation",
@@ -31,15 +31,14 @@ export const HERO_DATA = {
 
 export const ABOUT_DATA = {
   companyName: "ProSIM",
-  tagline: "Your Detailed Engineering Partner for Complex Projects",
-  /**
-   * Paraphrased from the company deck. The scope line is deliberate: ProSIM
-   * picks a project up at the detailed engineering stage - front-end and basic
-   * engineering are outside the remit - so the copy never implies FEED or
-   * concept-phase services.
+  /*
+   * Verbatim from the company deck (slide 2). These three strings are the
+   * client's own approved wording and are intentionally NOT paraphrased -
+   * keep them character-for-character unless the deck itself changes.
    */
-  statement: "ProSIM is a multidisciplinary engineering and design company delivering dependable solutions across the Energy, Process, Utilities and Infrastructure sectors. We work alongside EPCs, OEMs and engineering service providers, taking projects forward from detailed engineering through to rigorous analysis and validation.",
-  statementSecondary: "Our commitment is to turn approved designs into reliable, buildable engineering. Every deliverable is backed by deep technical expertise, rigorous analysis and a clear grasp of how the asset behaves in the real world.",
+  tagline: "Engineering your Designs",
+  statement: "ProSIM is a multidisciplinary engineering and design company delivering reliable solutions across the Energy, Process, Utilities, and Infrastructure sectors. We work with EPC's, OEM's and engineering service companies to support projects from engineering design through detailed engineering and analysis.",
+  statementSecondary: "ProSIM is committed to transform designs into reliable and practical engineering solutions. Every design is reinforced by deep technical expertise, rigorous analysis and clear understanding of real-world application",
   scopeNote: "ProSIM specialises exclusively in detailed engineering and analysis. We do not undertake front-end or basic engineering scopes.",
   pillars: [
     {
@@ -122,7 +121,8 @@ export const STATS_DATA: StatItem[] = [
     id: "stat-projects",
     value: 3600,
     suffix: "+",
-    label: "Projects Delivered",
+    // Deck wording, kept verbatim (it reads "Project Delivered", singular).
+    label: "Project Delivered",
     highlight: "Across 18+ Countries",
     description: "Successfully executed mission-critical engineering and simulation projects with 100% on-time delivery track record."
   },
@@ -155,7 +155,7 @@ export const STATS_DATA: StatItem[] = [
 export const INDUSTRIES_DATA: IndustryItem[] = [
   {
     id: "nuclear-power",
-    title: "Nuclear Power",
+    title: "Nuclear Energy",
     category: "Clean & Base-Load Energy",
     shortDesc: "Reactor pressure vessel integrity, seismic qualification, containment analysis, and RCC-M code design.",
     fullDesc: "ProSIM provides mission-critical structural, thermal-hydraulic, and seismic engineering for nuclear island and balance-of-plant systems. We specialize in ASME Section III (Class 1, 2, 3) and RCC-M code compliance, reactor internal dynamics, core shroud stress analysis, severe accident mitigation simulations, and life extension studies.",
@@ -212,7 +212,7 @@ export const INDUSTRIES_DATA: IndustryItem[] = [
   },
   {
     id: "petrochemical-engineering",
-    title: "Petrochemical Engineering",
+    title: "Petrochemicals & Process Industries",
     category: "Refining & Chemical Processing",
     shortDesc: "Reactors, distillation columns, heat exchangers, high-temperature piping stress, and API 579 FFS assessments.",
     fullDesc: "Specialized design-by-analysis and fitness-for-service evaluation for refinery units, hydrocrackers, FCCUs, and petrochemical complexes. We perform advanced thermo-mechanical stress, nozzle flexibility, and localized corrosion flaw assessment.",
@@ -504,7 +504,7 @@ export const PROJECTS_DATA: ProjectCaseStudy[] = [
   {
     id: "proj-1",
     title: "Seismic & Thermal Fatigue Qualification of 700 MWe Nuclear Primary Heat Transport Loop",
-    industry: "Nuclear Power",
+    industry: "Nuclear Energy",
     clientType: "Nuclear Energy Corporation",
     challenge: "Ensure structural integrity under combined Safe Shutdown Earthquake (SSE), thermal stratification, and cyclic thermal transients in accordance with RCC-M Level D requirements.",
     solution: "Developed non-linear FEA response-spectrum and transient thermal models incorporating multi-axial creep-fatigue and fluid-structure interaction (FSI).",
@@ -537,7 +537,7 @@ export const PROJECTS_DATA: ProjectCaseStudy[] = [
   {
     id: "proj-4",
     title: "API 579 Level 3 Fitness-For-Service of Hydrocracker High-Pressure Shell with Localized Corrosion",
-    industry: "Petrochemical Engineering",
+    industry: "Petrochemicals & Process Industries",
     clientType: "Refinery Operator",
     challenge: "Plant turnaround ultrasonic inspection detected localized metal thinning below minimum required thickness on high-temperature hydrogen service vessel.",
     solution: "Constructed elastic-plastic finite element model under combined operating pressure, thermal gradient, and hydrogen partial pressure.",

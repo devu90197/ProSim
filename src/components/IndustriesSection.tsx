@@ -28,7 +28,7 @@ export const IndustriesSection: React.FC<IndustriesSectionProps> = ({
     <div className="page-shell">
       <div className="mb-14 flex flex-col justify-between gap-8 md:flex-row md:items-end">
         <SectionHeading
-          eyebrow="Industries We Serve"
+          eyebrow="Industry We Serve"
           title="Solving Industry's Most Pressing Challenges"
           subtitle="A trusted detailed engineering partner in the sectors where getting the analysis right is not negotiable — and where the cost of getting it wrong is measured in shutdowns, not revisions."
         />
@@ -85,7 +85,14 @@ export const IndustriesSection: React.FC<IndustriesSectionProps> = ({
                     className="industry-scrim absolute inset-x-0 bottom-0 h-1/4 opacity-0 transition-opacity duration-300 group-hover/ind:opacity-100"
                   />
 
-                  <div className="absolute inset-x-0 bottom-0 flex translate-y-2 flex-col items-center gap-1.5 p-5 text-center opacity-0 transition-all duration-300 group-hover/ind:translate-y-0 group-hover/ind:opacity-100">
+                  {/*
+                   * Sits in the dark margin below the label baked into the
+                   * card art. The two-line labels ("Industrial & Heavy
+                   * Engineering") reach ~87.5% of the card height, so the
+                   * padding here is kept tight enough to clear even those
+                   * without crowding them.
+                   */}
+                  <div className="absolute inset-x-0 bottom-0 flex translate-y-2 flex-col items-center gap-1 px-4 pb-4 text-center opacity-0 transition-all duration-300 group-hover/ind:translate-y-0 group-hover/ind:opacity-100">
                     <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-200">
                       {industry.category}
                     </p>

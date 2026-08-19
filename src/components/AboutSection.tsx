@@ -154,6 +154,22 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ onOpenConsultation }
                 </button>
               </div>
             </div>
+
+            {/*
+             * Artwork from slide 2 of the company deck. The slide's left half
+             * (headline, both paragraphs, four stat tiles) is cropped away
+             * because every word of it is already rendered as real text above
+             * and in the stats band - only the imagery is used here.
+             */}
+            <img
+              src="/images/about-banner.jpg"
+              alt=""
+              loading="lazy"
+              decoding="async"
+              width={1200}
+              height={800}
+              className="aspect-3/2 w-full rounded-3xl border border-slate-200 object-cover shadow-lg shadow-brand-950/10"
+            />
           </Reveal>
 
           <Stagger className="grid grid-cols-1 gap-4 sm:grid-cols-2" stagger={0.09}>
@@ -179,8 +195,20 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ onOpenConsultation }
         </div>
 
         {/* Right: tabbed detail panel */}
-        <Reveal className="h-full lg:col-span-5" direction="left" delay={0.15}>
-          <div className="relative flex h-full flex-col justify-between overflow-hidden rounded-3xl border border-slate-200 bg-white/85 p-6 shadow-xl backdrop-blur-2xl sm:p-7">
+        {/*
+         * The column keeps the row's full height; the card inside does not.
+         *
+         * The card used to carry `h-full` and `justify-between` itself, so it
+         * stretched to match the left column and pushed its footer to the very
+         * bottom, leaving a tall empty gap once that column grew. Splitting the
+         * two fixes it: the column still spans the row (which is what gives
+         * `sticky` something to travel within — a shrink-wrapped column has
+         * zero scroll range and the card just scrolls away), while the card
+         * itself is only as tall as the active tab needs and pins below the
+         * header as the longer column passes.
+         */}
+        <Reveal className="lg:col-span-5 lg:h-full" direction="left" delay={0.15}>
+          <div className="relative flex flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white/85 p-6 shadow-xl backdrop-blur-2xl sm:p-7 lg:sticky lg:top-24">
             <div
               aria-hidden
               className="absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-teal-500/40 to-transparent"
@@ -219,8 +247,10 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ onOpenConsultation }
                 })}
               </div>
 
-              <AnimatePresence mode="wait">
-                {activeTab === 'overview' && (
+              {/* Floor height keeps the card from resizing as tabs swap. */}
+              <div className="min-h-[24rem]">
+                <AnimatePresence mode="wait">
+                  {activeTab === 'overview' && (
                   <motion.div
                     key="overview"
                     id="about-panel-overview"
@@ -316,7 +346,8 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ onOpenConsultation }
                     </div>
                   </motion.div>
                 )}
-              </AnimatePresence>
+                </AnimatePresence>
+              </div>
             </div>
 
             <div className="mt-4 flex items-center justify-between gap-3 border-t border-slate-100 pt-4 text-xs">

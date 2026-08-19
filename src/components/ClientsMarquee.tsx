@@ -50,7 +50,7 @@ export const ClientsMarquee: React.FC = () => {
     >
       <div className="page-shell mb-10">
         <SectionHeading
-          eyebrow="Our Clients"
+          eyebrow="Clients"
           title={
             <>
               Trusted by <span className="text-accent-500">800+</span> customers worldwide

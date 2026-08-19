@@ -47,7 +47,12 @@ export default function App() {
     >
       <Navbar onOpenConsultation={openConsultation} />
 
-      <main className="w-full flex-1 overflow-x-hidden">
+      {/*
+       * `overflow-x-clip`, not `hidden`. Both stop sideways scroll, but
+       * `hidden` makes this element a scroll container, which silently breaks
+       * `position: sticky` for everything inside it. `clip` does not.
+       */}
+      <main className="w-full flex-1 overflow-x-clip">
         <Hero onOpenConsultation={openConsultation} />
         <ClientsMarquee />
         <StatsSection />
